@@ -1,9 +1,9 @@
 # Block 3.05 | Loops
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSI-Rt22Tc2DMXgLTEimcHN0UavXUwFz3HVHOfTTmJX5FooAVpglMzovaK9iW0DN3OYdqqA0TQmY6lE/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Loops Intro](https://github.com/FullstackAcademy/loops-intro)\
-[Workshop: TDD Loops](https://github.com/FullstackAcademy/tdd-loops)\
-[Workshop Solution: TDD Loops](https://github.com/FullstackAcademy/tdd-loops-solution)
+[Guided Practice: Loops Intro](https://github.com//loops-intro)\
+[Workshop: TDD Loops](https://github.com//tdd-loops)\
+[Workshop Solution: TDD Loops](https://github.com//tdd-loops-solution)
 
 ## Action Items
 

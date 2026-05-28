@@ -1,9 +1,9 @@
 # Block 1.02 | CLI
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vR-m01Kk5YLkJSNtVpUngaGMNs2xwV3_v7GHs8D4w4S8quEpWDUKvbzEKGWN4mjl33K8Fnnskv1lWIN/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Directory Structure](https://github.com/FullstackAcademy/directory-structure)\
-[Workshop: Hack the Mainframe](https://github.com/FullstackAcademy/hack-the-mainframe)\
-[Workshop Solution: Hack the Mainframe](https://github.com/FullstackAcademy/hack-the-mainframe-solution)
+[Guided Practice: Directory Structure](https://github.com//directory-structure)\
+[Workshop: Hack the Mainframe](https://github.com//hack-the-mainframe)\
+[Workshop Solution: Hack the Mainframe](https://github.com//hack-the-mainframe-solution)
 
 ## Action Items
 
@@ -37,8 +37,8 @@
 # Block 1.03 | Git
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQs7CfLvPfB4Y4PA0wJODXFpq6SpAO3-7f8hlit7u5-OnYkXkENvawHVly7tTnqE6pmDlraceGt25Vw/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Baked Potatoes](https://github.com/FullstackAcademy/baked-potatoes)\
-[Workshop: GitHub Workflow](https://github.com/FullstackAcademy/github-workflow)
+[Guided Practice: Baked Potatoes](https://github.com//baked-potatoes)\
+[Workshop: GitHub Workflow](https://github.com//github-workflow)
 
 ## Action Items
 

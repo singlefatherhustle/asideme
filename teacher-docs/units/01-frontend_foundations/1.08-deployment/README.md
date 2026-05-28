@@ -4,7 +4,7 @@
 
 ## Action Items
 
-- [ ] Do as much as possible of the optional [review workshop](https://github.com/FullstackAcademy/qwirty).
+-  Do as much as possible of the optional [review workshop](https://github.com//qwirty).
 - [ ] Review the Learning Objectives and Vocabulary of past Unit 1 blocks to
       prepare for the Career Simulation.
 

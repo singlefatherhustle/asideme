@@ -2,9 +2,9 @@
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vS2aPRf8FPIJPLzKIKlfb74gqLAfTTiGT3G4BXl_IH46PUdorM0jmjweDZTb7TfjIbfqhDH27-SSqts/pub?start=false&loop=false&delayms=3000)\
 [Guided Practice: Pit
-Stop](https://github.com/FullstackAcademy/pit-stop)\
-[Workshop: Mainframe Override](https://github.com/FullstackAcademy/mainframe-override)\
-[Workshop Solution: Mainframe Override](https://github.com/FullstackAcademy/mainframe-override-solution)
+Stop](https://github.com//pit-stop)\
+[Workshop: Mainframe Override](https://github.com//mainframe-override)\
+[Workshop Solution: Mainframe Override](https://github.com//mainframe-override-solution)
 
 ## Action Items
 

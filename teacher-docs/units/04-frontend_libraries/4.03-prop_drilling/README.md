@@ -1,8 +1,8 @@
 # Block 4.03 | Prop Drilling
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vRNyNeTpvWvNUZ8xhQJMkrqIWCp-ds-N9mY5LoY_zt1karGMbua0ww0lZcBjSqu8Sw9Wgay7Nqkpu3q/pub?start=false&loop=false&delayms=3000)\
-[Workshop: Proper Plants](https://github.com/FullstackAcademy/proper-plants)\
-[Workshop Solution: Proper Plants](https://github.com/FullstackAcademy/proper-plants-solution)
+[Workshop: Proper Plants](https://github.com//proper-plants)\
+[Workshop Solution: Proper Plants](https://github.com//proper-plants-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 6.01 | Express
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSwvynJIhr9J_4h5_b2hYEAyWALKeWthL3HORnDQl0sQEwg_GWjlJ6k9abE3ni0ibqcTV57iBtN518p/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Playlist](https://github.com/FullstackAcademy/playlist)\
-[Workshop: Employee Directory ](https://github.com/FullstackAcademy/employee-directory)\
-[Workshop Solution: Employee Directory](https://github.com/FullstackAcademy/employee-directory-solution)
+[Guided Practice: Playlist](https://github.com//playlist)\
+[Workshop: Employee Directory ](https://github.com//employee-directory)\
+[Workshop Solution: Employee Directory](https://github.com//employee-directory-solution)
 
 ## Action Items
 

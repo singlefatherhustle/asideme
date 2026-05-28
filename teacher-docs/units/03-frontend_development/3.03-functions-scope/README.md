@@ -1,9 +1,9 @@
 # Block 3.03 | Functions & Scope
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTeGZP2FFjpFNhABnXQ0pLDk7g1UmJdadrQzWwltIdWtc1nsSPs-dVFaqjOsnXCR1d9LfGysSFzDMo0/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Project Pricing](https://github.com/FullstackAcademy/project-pricing)\
-[Workshop: Tabletop Tools](https://github.com/FullstackAcademy/tabletop-tools)\
-[Workshop Solution: Tabletop Tools](https://github.com/FullstackAcademy/tabletop-tools-solution)
+[Guided Practice: Project Pricing](https://github.com//project-pricing)\
+[Workshop: Tabletop Tools](https://github.com//tabletop-tools)\
+[Workshop Solution: Tabletop Tools](https://github.com//tabletop-tools-solution)
 
 ## Action Items
 

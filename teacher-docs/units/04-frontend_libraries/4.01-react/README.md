@@ -1,9 +1,9 @@
 # Block 4.01 | React
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vReXi67q8Nm8r4H1pol1cznB51qz7hN9nvM1d0RPyepS-mnbit7DUt4nFN-N7kX00RPSWEe7v3s335P/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Puppy Pals](https://github.com/FullstackAcademy/puppy-pals)\
-[Workshop: Dark Echoes](https://github.com/FullstackAcademy/dark-echoes)\
-[Workshop Solution: Dark Echoes](https://github.com/FullstackAcademy/dark-echoes-solution)
+[Guided Practice: Puppy Pals](https://github.com//puppy-pals)\
+[Workshop: Dark Echoes](https://github.com//dark-echoes)\
+[Workshop Solution: Dark Echoes](https://github.com//dark-echoes-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 3.09 | Document Object Model
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQtEtGEbQc8HuU3KbupjEg6gsXgw12B2aQMtufpTNYb3j9-bTtN0tg4R5G28dVSEmkySCj3B5VNDj5n/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Inspirational Quotes](https://github.com/FullstackAcademy/inspirational-quotes)\
-[Workshop: Freelancer Forum](https://github.com/FullstackAcademy/freelancer-forum)\
-[Workshop Solution: Freelancer Forum](https://github.com/FullstackAcademy/freelancer-forum-solution)
+[Guided Practice: Inspirational Quotes](https://github.com//inspirational-quotes)\
+[Workshop: Freelancer Forum](https://github.com//freelancer-forum)\
+[Workshop Solution: Freelancer Forum](https://github.com//freelancer-forum-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 6.07 | Junction Tables
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQuBdVl6-UfJXrt_Sfa4YErqQWsN2lXMibIjs70UviyIGn8kdnxXrimfRiSXhJANg7BhD5-olPGwFfV/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Bridge Hospital](https://github.com/FullstackAcademy/bridge-hospital)\
-[Workshop: Jukebox](https://github.com/FullstackAcademy/jukebox)\
-[Workshop Solution: Jukebox](https://github.com/FullstackAcademy/jukebox-solution)
+[Guided Practice: Bridge Hospital](https://github.com//bridge-hospital)\
+[Workshop: Jukebox](https://github.com//jukebox)\
+[Workshop Solution: Jukebox](https://github.com//jukebox-solution)
 
 ## Action Items
 

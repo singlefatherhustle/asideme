@@ -1,10 +1,10 @@
 # Block 4.06 | Forms & Authentication
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQ3bfwPCkJDEogHQapRMp8d9MrZoM2NHX4wCbtCWjppud6SNq8ZYE4Ahp6P4Hk9FCe99Qg8wUZwbPoj/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Number Guesser](https://github.com/FullstackAcademy/number-guesser)\
-[Workshop: Secret Tunnel](https://github.com/FullstackAcademy/secret-tunnel)\
+[Guided Practice: Number Guesser](https://github.com//number-guesser)\
+[Workshop: Secret Tunnel](https://github.com//secret-tunnel)\
 [Workshop Solution: Secret
-Tunnel](https://github.com/FullstackAcademy/secret-tunnel-solution)
+Tunnel](https://github.com//secret-tunnel-solution)
 
 ## Action Items
 

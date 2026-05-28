@@ -1,9 +1,9 @@
 # Block 3.11 | Queries
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSjqQIznq6sUoYEb1siHuHDuQGLWRrcenPUs-nOxIqHFvs5m1-uyg-Z8gP-NN9tZxR34ropociqdvZl/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Fullstack Gala](https://github.com/FullstackAcademy/fullstack-gala)\
-[Workshop: Party Planner](https://github.com/FullstackAcademy/party-planner)\
-[Workshop: Party Planner Solution](https://github.com/FullstackAcademy/party-planner-solution)
+[Guided Practice: Gala](https://github.com//gala)\
+[Workshop: Party Planner](https://github.com//party-planner)\
+[Workshop: Party Planner Solution](https://github.com//party-planner-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 3.08 | Array Methods
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTDpKf270l0bAC7KqZJ334-jBJl_a-UKjTJXRvIx9PhcFauVgtkBGBBjGu5m39p3I-YXPdoae3DW_9E/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Array Methods Intro](https://github.com/FullstackAcademy/array-methods-intro)\
-[Workshop: Groceries](https://github.com/FullstackAcademy/groceries)\
-[Workshop Solution: Groceries](https://github.com/FullstackAcademy/groceries-solution)
+[Guided Practice: Array Methods Intro](https://github.com//array-methods-intro)\
+[Workshop: Groceries](https://github.com//groceries)\
+[Workshop Solution: Groceries](https://github.com//groceries-solution)
 
 ## Action Items
 

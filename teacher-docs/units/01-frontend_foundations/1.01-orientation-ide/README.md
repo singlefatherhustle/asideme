@@ -1,6 +1,6 @@
 # Block 1.01 | Orientation & IDE
 
-[Workshop: VS Code Intro](https://github.com/FullstackAcademy/vscode-intro)
+[Workshop: VS Code Intro](https://github.com//vscode-intro)
 
 ## Announcements
 
@@ -8,9 +8,9 @@
 
 ## Action Items
 
-- [ ] Fill out [the new learner survey](https://fullstack.instructure.com/courses/1290/pages/new-learner-survey?module_item_id=422339).
+- [ ] Fill out [the new learner survey](https://.instructure.com/courses/1290/pages/new-learner-survey?module_item_id=422339).
 - [ ] Fill out [the checkin form](https://forms.gle/ypDzcSZ8Qg6Up45HA).
-- [ ] Access [the cohort repo](https://github.com/FullstackAcademy/2601-FTB-ET-WEB-FT).
+- Access [the cohort repo](https://github.com//).
 - [ ] Confirm that your machine is set up with Git, Node, and VS Code.
 - [ ] Turn in the following workshops in Canvas:
   - GitHub Setup

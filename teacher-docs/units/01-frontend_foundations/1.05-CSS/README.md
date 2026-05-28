@@ -1,9 +1,9 @@
 # Block 1.05 | CSS
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQ6CAVkzy-ypDEjVmMTtUXiHqpDnI_HLZl4hFEvizWItx4yvSO8AhCmd-Ur4XYeDZfOFB6jlTMe2fkg/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Fairy Tale](https://github.com/FullstackAcademy/fairy-tale)\
-[Workshop: Furniture Emporium](https://github.com/FullstackAcademy/furniture-emporium)
-[Workshop Solution: Furniture Emporium](https://github.com/FullstackAcademy/furniture-emporium-solution)
+[Guided Practice: Fairy Tale](https://github.com//fairy-tale)\
+[Workshop: Furniture Emporium](https://github.com//furniture-emporium)
+[Workshop Solution: Furniture Emporium](https://github.com//furniture-emporium-solution)
 
 ## Action Items
 

@@ -1,6 +1,6 @@
 # Career Simulation | Book Buddy
 
-Please fork [the Book Buddy starter repo](https://github.com/FullstackAcademy/2601-book-buddy) for this career simulation!
+Please fork [the Book Buddy starter repo](https://github.com//2601-book-buddy) for this career simulation!
 
 You will be submitting the link to your pull request.
 

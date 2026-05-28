@@ -1,8 +1,8 @@
-# 2601-FTB-ET-WEB-FT
+#
 
 ## Introduction
 
-This is your 2601-FTB-ET-WEB-FT **class repo**.
+This is your **class repo**.
 This repo will have links to resources like notes and demo code as we progress through the course.
 
 ## Resources
@@ -19,35 +19,33 @@ This repo will have links to resources like notes and demo code as we progress t
     <tr>
       <td>Jonathan Eleiott</td>
       <td>Instructor</td>
-      <td>Jonathan.Eleiott@fullstackacademy.com</td>
+      <td></td>
     </tr>
     <tr>
       <td>Lester Lee</td>
       <td>Instructor</td>
-      <td>lester.lee@fullstackacademy.com</td>
+      <td></td>
     </tr>
     <tr>
       <td>Pawan Benjamin</td>
       <td>Learner Experience Manager</td>
-      <td>Pawan.Benjamin@fullstackacademy.com</td>
+      <td></td>
     </tr>
     <tr>
       <td>Alisha Patterson</td>
       <td>Career Success Coach</td>
-      <td>Alisha.Patterson@fullstackacademy.com</td>
+      <td></td>
     </tr>
     <tr>
       <td>Javier Montero</td>
       <td>Mentor</td>
-      <td>Javier.Montero@fullstackacademy.com</td>
+      <td></td>
     </tr>
   </table>
 </details>
 
 ## Important Class Links
 
-- [**Zoom Classroom Link**](https://fullstackacademy.zoom.us/j/3322060950?pwd=ZGEBRAvneqQNkB5DY2ZJxMrCpKiM87.1)
-- [**Canvas**](https://fullstack.instructure.com/courses/1290)
 - [**YouTube Playlist**](https://www.youtube.com/playlist?list=PL_yPiP-ZZLhL5Fbx6OJLwQFdBh0Ieuijd)
 - [**Slack**](https://fsa-sl-grid.enterprise.slack.com/archives/C0A61ADGL7R)
 - [**Morning check-in**](https://forms.gle/ypDzcSZ8Qg6Up45HA)

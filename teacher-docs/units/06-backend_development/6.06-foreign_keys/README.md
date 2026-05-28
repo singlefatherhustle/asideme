@@ -1,9 +1,9 @@
 # Block 6.06 | Foreign Keys
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSu4RgF6y-DHfAUYxXwJb-Hn2kw1L_9mv5WmD7SywDGkGWT1A6rG2IZYD3ZCy6buxEbX-Mu4iH4rrIU/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: DMV](https://github.com/FullstackAcademy/dmv)\
-[Workshop: Filez](https://github.com/FullstackAcademy/filez)\
-[Workshop Solution: Filez](https://github.com/FullstackAcademy/filez-solution)
+[Guided Practice: DMV](https://github.com//dmv)\
+[Workshop: Filez](https://github.com//filez)\
+[Workshop Solution: Filez](https://github.com//filez-solution)
 
 ## Action Items
 

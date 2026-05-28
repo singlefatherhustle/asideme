@@ -1,9 +1,9 @@
 # Block 4.04 | Context
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSBssgm8ae2oeYt2yyoMd855OlRyOwC8GeDVBnwucNCnDkZlKsDw6gXyTGibq-xSyO5aeTx4RlJ3h1m/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Does It Glow?](https://github.com/FullstackAcademy/does-it-glow)\
-[Workshop: Whack a Mole](https://github.com/FullstackAcademy/whack-a-mole)\
-[Workshop Solution: Whack a Mole](https://github.com/FullstackAcademy/whack-a-mole-solution)
+[Guided Practice: Does It Glow?](https://github.com//does-it-glow)\
+[Workshop: Whack a Mole](https://github.com//whack-a-mole)\
+[Workshop Solution: Whack a Mole](https://github.com//whack-a-mole-solution)
 
 ## Action Items
 
@@ -35,4 +35,4 @@
 
 ## Resources
 
-- Check out the commit history of [context branch of the Proper Plants solution](https://github.com/FullstackAcademy/proper-plants-solution/tree/context) for an example of how to refactor an app from prop drilling to using context.
+- Check out the commit history of [context branch of the Proper Plants solution](https://github.com//proper-plants-solution/tree/context) for an example of how to refactor an app from prop drilling to using context.

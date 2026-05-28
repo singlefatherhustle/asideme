@@ -1,9 +1,9 @@
 # Block 3.01 | JavaScript
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vRQHlviuW7TsSrG6IH_o4jY0rnOJNeC6Un6elfEJxOCawEnBnty--W5vBD2-ntLbOAi8H6d-eyKc5YF/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: JavaScript Intro](https://github.com/FullstackAcademy/javascript-intro)\
-[Workshop: Secure the Vault](https://github.com/FullstackAcademy/secure-the-vault)\
-[Workshop Solution: Secure the Vault](https://github.com/FullstackAcademy/secure-the-vault-solution)
+[Guided Practice: JavaScript Intro](https://github.com//javascript-intro)\
+[Workshop: Secure the Vault](https://github.com//secure-the-vault)\
+[Workshop Solution: Secure the Vault](https://github.com//secure-the-vault-solution)
 
 ## Action Items
 

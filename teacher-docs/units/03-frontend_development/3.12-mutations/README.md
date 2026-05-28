@@ -1,9 +1,9 @@
 # Block 3.12 | Mutations
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQs74Ifjd12IE0fUms75FPi9xwjE3_BSgo3FRdKLUfmlatzwuRCpAfMZvy5gMieJw_nMFKFz0BBiz_7/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Fullstack Gala Admin](https://github.com/FullstackAcademy/fullstack-gala-admin)\
-[Workshop: Party Planner Admin](https://github.com/FullstackAcademy/party-planner-admin)\
-[Workshop Solution: Party Planner Admin](https://github.com/FullstackAcademy/party-planner-admin-solution)
+[Guided Practice: Gala Admin](https://github.com//gala-admin)\
+[Workshop: Party Planner Admin](https://github.com//party-planner-admin)\
+[Workshop Solution: Party Planner Admin](https://github.com//party-planner-admin-solution)
 
 ## Action Items
 

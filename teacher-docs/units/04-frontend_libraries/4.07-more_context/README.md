@@ -1,9 +1,9 @@
 # Block 4.07 | More Context
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTQ_14CUyTdz-h-VdrDbTjv9-8XqyXKm0Ih68o_zkzpRYcdfJOgXgC9PCGwm-GO3TtF7zn44B-lHqpI/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Fitness Intro](https://github.com/FullstackAcademy/fitness-intro)\
-[Workshop: Fitness Trackr](https://github.com/FullstackAcademy/fitness-trackr)\
-[Workshop Solution: Fitness Trackr](https://github.com/FullstackAcademy/fitness-trackr-solution)
+[Guided Practice: Fitness Intro](https://github.com//fitness-intro)\
+[Workshop: Fitness Trackr](https://github.com//fitness-trackr)\
+[Workshop Solution: Fitness Trackr](https://github.com//fitness-trackr-solution)
 
 ## Action Items
 

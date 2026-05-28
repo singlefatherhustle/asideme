@@ -1,9 +1,9 @@
 # Block 3.10 | Events
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSh9PA14Xq23xH3sXJBI9AWlgRO_cmBA2KaGhQYgfv71rbnyejQ5KF_q93zXAkdyCo__p-luVc41QVu/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Counting Sheep](https://github.com/FullstackAcademy/counting-sheep)\
-[Workshop: Odds and Events](https://github.com/FullstackAcademy/odds-and-events)\
-[Workshop Solution: Odds and Events](https://github.com/FullstackAcademy/odds-and-events-solution)
+[Guided Practice: Counting Sheep](https://github.com//counting-sheep)\
+[Workshop: Odds and Events](https://github.com//odds-and-events)\
+[Workshop Solution: Odds and Events](https://github.com//odds-and-events-solution)
 
 ## Action Items
 

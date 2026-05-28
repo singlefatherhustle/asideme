@@ -1,9 +1,9 @@
 # Block 4.05 | Data Fetching & Effects
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTtgETm-hRZ8d2YkwjD24XBUIjZQEjDP9jMAYF-hXSqDRFH17QcUaAIAsK4hthwcahxduf6XLvxbQbs/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Capybara Clicker](https://github.com/FullstackAcademy/capybara-clicker)\
-[Workshop: Guest List](https://github.com/FullstackAcademy/guest-list)\
-[Workshop Solution: Guest List](https://github.com/FullstackAcademy/guest-list-solution)
+[Guided Practice: Capybara Clicker](https://github.com//capybara-clicker)\
+[Workshop: Guest List](https://github.com//guest-list)\
+[Workshop Solution: Guest List](https://github.com//guest-list-solution)
 
 ## Action Items
 

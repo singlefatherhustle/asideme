@@ -1,14 +1,14 @@
 # Block 6.04 | Schemas & Seeding
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vQv07B6HqD8bIfqIq78YxQ4qh6lcs86ZbgJlMNwyGay_WXcf7SxIECP-UbAqrkscJQTIUXKRgprYGrq/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: MovieDb 1](https://github.com/FullstackAcademy/moviedb)\
-[Workshop: Fullstack Employees 1](https://github.com/FullstackAcademy/fullstack-employees)\
-[Workshop Solution: Fullstack Employees](https://github.com/FullstackAcademy/fullstack-employees-solution)
+[Guided Practice: MovieDb 1](https://github.com//moviedb)\
+[Workshop: Employees 1](https://github.com//employees)\
+[Workshop Solution: Employees](https://github.com//employees-solution)
 
 ## Action Items
 
 - [ ] Complete and submit Block 6.04: Competency Check.
-- [ ] Complete and submit Workshop: Fullstack Employees 1.
+- [ ] Complete and submit Workshop: Employees 1.
 
 ## Learning Objectives
 

@@ -1,9 +1,9 @@
 # Block 3.06 | Arrays
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vSpnu-49nZiJzKzznioYEkEKAbWeviaBVUwyMC-G5yRxoCwuDLD0Uqm5KLwxYilPmhmWD9VUaN2MeiP/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Arrays Intro](https://github.com/FullstackAcademy/arrays-intro)\
-[Workshop: TDD Arrays](https://github.com/FullstackAcademy/tdd-arrays)\
-[Workshop Solution: TDD Arrays](https://github.com/FullstackAcademy/tdd-arrays-solution)
+[Guided Practice: Arrays Intro](https://github.com//arrays-intro)\
+[Workshop: TDD Arrays](https://github.com//tdd-arrays)\
+[Workshop Solution: TDD Arrays](https://github.com//tdd-arrays-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 3.04 | Test Driven Development
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vRBkbP1WKG6UTmw15UgAglA0tn_0y2fARVrFRnovqyuJ3fHLwPZjy0jierHrlx-mi9yikM6hxQwRX96/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Physics Test](https://github.com/FullstackAcademy/physics-test)\
-[Workshop: TDD Intro](https://github.com/FullstackAcademy/tdd-intro)\
-[Workshop Solution: TDD Intro](https://github.com/FullstackAcademy/tdd-intro-solution)
+[Guided Practice: Physics Test](https://github.com//physics-test)\
+[Workshop: TDD Intro](https://github.com//tdd-intro)\
+[Workshop Solution: TDD Intro](https://github.com//tdd-intro-solution)
 
 ## Action Items
 

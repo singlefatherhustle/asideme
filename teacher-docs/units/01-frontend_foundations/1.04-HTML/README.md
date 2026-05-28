@@ -1,9 +1,9 @@
 # Block 1.04 | HTML
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vR2p_J9-2S8GAKnt34MowoeO6bFUEi9qYtZt1M8ywcG8hfRMSGdkdYGUrxXv_HO8d4GciNQFKb0oIUe/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: HTML Intro ](https://github.com/FullstackAcademy/html-intro)\
-[Workshop: Zoo](https://github.com/FullstackAcademy/zoo)\
-[Workshop Solution: Zoo](https://github.com/FullstackAcademy/zoo-solution)
+[Guided Practice: HTML Intro ](https://github.com//html-intro)\
+[Workshop: Zoo](https://github.com//zoo)\
+[Workshop Solution: Zoo](https://github.com//zoo-solution)
 
 ## Action Items
 

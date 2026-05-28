@@ -1,9 +1,9 @@
 # Block 6.08 | Authorization
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTWh6ir7dXB3NOMgMSjAHgjLm6WFzTWiGbHfGxwhNi5fUq_RJEjKA_QIYVsnoWe5kYjO_RhtdXg_w1-/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Table4U](https://github.com/FullstackAcademy/table4u)\
-[Workshop: Jukebox Pro](https://github.com/FullstackAcademy/jukebox-pro)\
-[Workshop Solution: Jukebox Pro](https://github.com/FullstackAcademy/jukebox-pro-solution)
+[Guided Practice: Table4U](https://github.com//table4u)\
+[Workshop: Jukebox Pro](https://github.com//jukebox-pro)\
+[Workshop Solution: Jukebox Pro](https://github.com//jukebox-pro-solution)
 
 ## Action Items
 

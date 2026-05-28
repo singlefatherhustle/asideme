@@ -1,9 +1,9 @@
 # Block 4.02 | Props
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vRwtjFKl1PwC_JOaPHjvvZOpSfldpxWIi6MjnBobnDkplRqy44YKFhI50LO-Wr5_a3s5fouZag9P2gS/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Color Palette](https://github.com/FullstackAcademy/color-palette)\
-[Workshop: React TV](https://github.com/FullstackAcademy/react-tv)\
-[Workshop: React TV Solution](https://github.com/FullstackAcademy/react-tv-solution)
+[Guided Practice: Color Palette](https://github.com//color-palette)\
+[Workshop: React TV](https://github.com//react-tv)\
+[Workshop: React TV Solution](https://github.com//react-tv-solution)
 
 ## Action Items
 

@@ -1,9 +1,9 @@
 # Block 3.02 | Conditionals
 
 [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTzKy5iMGXqRAf45zLMGlsfs_lFla4clNPG4BiJOcBbiO1EnQy-ZpvJ28fMMQAqZcxzHJ-mMV6KnNAp/pub?start=false&loop=false&delayms=3000)\
-[Guided Practice: Vending Machine](https://github.com/FullstackAcademy/vending-machine)\
-[Workshop: Pop Quiz](https://github.com/FullstackAcademy/pop-quiz)\
-[Workshop Solution: Pop Quiz](https://github.com/FullstackAcademy/pop-quiz-solution)
+[Guided Practice: Vending Machine](https://github.com//vending-machine)\
+[Workshop: Pop Quiz](https://github.com//pop-quiz)\
+[Workshop Solution: Pop Quiz](https://github.com//pop-quiz-solution)
 
 ## Action Items
 
