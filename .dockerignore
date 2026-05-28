@@ -1,0 +1,42 @@
+# Mirrors .gitignore + a few extras for Docker context.
+.git/
+.gitignore
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Local databases — DB lives on persistent volume
+devlisten.db
+devlisten.db-shm
+devlisten.db-wal
+*.sqlite*
+
+# Test + dev artifacts
+.playwright-mcp/
+playwright-report/
+test-results/
+coverage/
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Backups
+*.bak
+*.pre-*.bak
+
+# Documentation that doesn't need to ship
+*.md
+!README.md
+
+# Anything else likely-stale
+devlisten-v3-new/
+ASIDE_FRONTEND_HANDOFF.md
+COMPLETION_REPORT.md
+restore-from-db.mjs

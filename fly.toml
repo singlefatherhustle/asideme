@@ -1,0 +1,58 @@
+# ASIDE — Fly.io deployment configuration.
+#
+# Prerequisites:
+#   1. fly auth login
+#   2. fly apps create aside    # or whatever app name you prefer
+#   3. fly volumes create aside_data --size 1 --region atl
+#   4. Set secrets — see .env.example for required vars:
+#        fly secrets set ANTHROPIC_API_KEY=... SESSION_SECRET=... etc
+#   5. fly deploy
+#
+# After deploy:
+#   fly logs            # tail server logs
+#   fly status          # check health
+#   fly ssh console     # shell into the container
+#   fly metrics         # see /metrics endpoint output in Fly dashboard
+
+app = "aside"
+primary_region = "atl"
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+  APP_URL = "https://aside.app"
+  REQUIRE_EMAIL_VERIFICATION = "true"
+  CORS_ORIGIN = "https://aside.app"
+
+# Persistent volume — SQLite database survives deploys.
+# Created once with: fly volumes create aside_data --size 1 --region atl
+[mounts]
+  source = "aside_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = false      # SQLite needs the same machine each time
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  # Health checks read from the /health endpoint defined in server.js.
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
