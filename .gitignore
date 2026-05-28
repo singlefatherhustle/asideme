@@ -1,1 +1,49 @@
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
+
+# ── Local databases (SQLite) ─────────────────────────────────────────────────
+devlisten.db
+devlisten.db-shm
+devlisten.db-wal
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ── Backups created mid-session ──────────────────────────────────────────────
+*.bak
+*.pre-*.bak
+*.today
+
+# ── OS / editor cruft ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ── Test artifacts ───────────────────────────────────────────────────────────
+.playwright-mcp/
+playwright-report/
+test-results/
+coverage/
+
+# ── Build / runtime ──────────────────────────────────────────────────────────
+dist/
+build/
+.next/
+.cache/
+*.log
+npm-debug.log*
+
+# ── Nested duplicate codebase (cleanup recommended) ──────────────────────────
+devlisten-v3-new/
+
+# ── Local RAG corpus (source input, not redistributable) ─────────────────────
+ingested/
