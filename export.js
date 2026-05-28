@@ -5,11 +5,15 @@
 import { getFullMessages, getTranscripts, getSession } from './db.js';
 
 // ── Markdown export ───────────────────────────────────────────────────────────
+// Returns the FULL session as Markdown: header + live transcript of the
+// lecture + every Q&A pair the user asked. Single self-contained document
+// that captures everything the user heard and asked during the session.
 export function sessionToMarkdown(sessionId) {
   const session = getSession(sessionId);
   if (!session) return null;
 
   const messages = getFullMessages(sessionId);
+  const transcripts = getTranscripts(sessionId) || [];
   const date = new Date(session.created_at * 1000).toLocaleString('en-US', {
     weekday:'long', year:'numeric', month:'long', day:'numeric',
     hour:'2-digit', minute:'2-digit'
@@ -33,20 +37,84 @@ export function sessionToMarkdown(sessionId) {
   let md = `# ${session.title}\n\n`;
   md += `> 📅 ${date}  \n`;
   md += `> 💬 ${session.answer_count} answers  `;
-  md += `• ⚡ avg ${avgMs}ms response  \n`;
+  md += `• ⚡ avg ${avgMs}ms response  `;
+  md += `• 🎙 ${transcripts.length} transcript entries  \n`;
   if (tags.length) md += `> 🏷 ${tags.join(', ')}\n`;
   md += `\n---\n\n`;
 
-  pairs.forEach((pair, i) => {
-    md += `## Q${i+1}. ${pair.q.content}\n\n`;
-    md += `${pair.a.content}\n\n`;
-    const pairTags = (() => { try { return JSON.parse(pair.a.tags||'[]'); } catch { return []; } })();
-    if (pairTags.length) md += `*Tags: ${pairTags.join(', ')}*\n\n`;
-    if (pair.a.ms) md += `*Response time: ${pair.a.ms}ms${pair.a.rag_used?' · used session context':''}*\n\n`;
+  // ── Live transcript ─────────────────────────────────────────────────
+  // The full lecture as ASIDE heard it, in chronological order. Skip the
+  // section entirely if no transcript was captured (e.g., chat-only session).
+  if (transcripts.length) {
+    md += `## Live Transcript\n\n`;
+    md += `*Captured from your live class. Speaker labels indicate who was talking when more than one voice was detected.*\n\n`;
+    let lastSpeaker = null;
+    for (const t of transcripts) {
+      const ts = new Date(t.created_at * 1000).toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+      });
+      const speakerLabel = t.speaker === 0 ? 'Teacher' : `Speaker ${t.speaker}`;
+      if (t.speaker !== lastSpeaker) {
+        md += `\n**${speakerLabel}** *(${ts})*  \n`;
+        lastSpeaker = t.speaker;
+      } else {
+        md += `*(${ts})*  \n`;
+      }
+      md += `${t.text}\n\n`;
+    }
     md += `---\n\n`;
-  });
+  }
+
+  // ── Q&A pairs ───────────────────────────────────────────────────────
+  if (pairs.length) {
+    md += `## Questions & Answers\n\n`;
+    pairs.forEach((pair, i) => {
+      md += `### Q${i+1}. ${pair.q.content}\n\n`;
+      md += `${pair.a.content}\n\n`;
+      const pairTags = (() => { try { return JSON.parse(pair.a.tags||'[]'); } catch { return []; } })();
+      if (pairTags.length) md += `*Tags: ${pairTags.join(', ')}*\n\n`;
+      if (pair.a.ms) md += `*Response time: ${pair.a.ms}ms${pair.a.rag_used?' · used session context':''}*\n\n`;
+      md += `---\n\n`;
+    });
+  }
 
   return md;
+}
+
+// ── Transcript-only export ────────────────────────────────────────────────────
+// Plain text dump of just the live transcript — useful when the user wants
+// the lecture words without any Q&A or markup overhead.
+export function sessionToTranscript(sessionId) {
+  const session = getSession(sessionId);
+  if (!session) return null;
+  const transcripts = getTranscripts(sessionId) || [];
+  if (!transcripts.length) return null;
+
+  const date = new Date(session.created_at * 1000).toLocaleString('en-US', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  let out = `${session.title}\n`;
+  out += `${date}\n`;
+  out += `${'─'.repeat(60)}\n\n`;
+
+  let lastSpeaker = null;
+  for (const t of transcripts) {
+    const ts = new Date(t.created_at * 1000).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    const speakerLabel = t.speaker === 0 ? 'Teacher' : `Speaker ${t.speaker}`;
+    if (t.speaker !== lastSpeaker) {
+      out += `\n[${ts}] ${speakerLabel}:\n`;
+      lastSpeaker = t.speaker;
+    } else {
+      out += `[${ts}]\n`;
+    }
+    out += `  ${t.text}\n`;
+  }
+
+  return out;
 }
 
 // ── Notion export ─────────────────────────────────────────────────────────────

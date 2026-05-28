@@ -66,20 +66,54 @@ Keep it under 300 words. Be direct, no filler.`,
   return text || null;
 }
 
+import { lookup } from 'node:dns/promises';
+import ipaddr from 'ipaddr.js';
+
+// SSRF protection: resolve hostname to IP(s) and reject anything that isn't
+// in the public unicast range. Catches:
+//   - IPv4 private (10/8, 172.16/12, 192.168/16)
+//   - IPv4 loopback (127/8), link-local (169.254/16, includes AWS/GCP metadata)
+//   - IPv4 multicast/broadcast/reserved
+//   - IPv6 loopback (::1), link-local (fe80::/10), ULA (fc00::/7), multicast
+//   - DNS rebinding (host that resolves to multiple A records — we check all)
+async function assertPublicHost(hostname) {
+  if (!hostname) throw new Error('Missing hostname');
+  let addrs;
+  try {
+    addrs = await lookup(hostname, { all: true, verbatim: true });
+  } catch (_) {
+    throw new Error(`Cannot resolve host: ${hostname}`);
+  }
+  for (const { address } of addrs) {
+    let parsedIp;
+    try { parsedIp = ipaddr.parse(address); } catch (_) {
+      throw new Error(`Invalid resolved IP: ${address}`);
+    }
+    const range = parsedIp.range();
+    // Only allow public unicast addresses.
+    if (range !== 'unicast') {
+      throw new Error(`Host resolves to non-public range (${range}): ${address}`);
+    }
+  }
+}
+
+// Maximum bytes we'll read from any fetched URL. Prevents an attacker from
+// pointing us at a multi-gigabyte file and exhausting memory.
+const MAX_FETCH_BYTES = 5 * 1024 * 1024; // 5 MB
+
 // ── URL fetcher ───────────────────────────────────────────────────────────────
 // Fetches a URL and extracts readable text content.
 // Stores it in the docs table so it becomes searchable in future RAG calls.
 export async function fetchUrl(url) {
-  // Validate URL
+  // Validate URL syntax + protocol
   let parsed;
   try { parsed = new URL(url); } catch(_) { throw new Error(`Invalid URL: ${url}`); }
-  if (!['http:','https:'].includes(parsed.protocol)) throw new Error('Only http/https URLs supported');
-
-  // Block localhost/internal IPs for security
-  const host = parsed.hostname;
-  if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || host.startsWith('10.')) {
-    throw new Error('Local URLs not allowed');
+  if (!['http:','https:'].includes(parsed.protocol)) {
+    throw new Error('Only http/https URLs supported');
   }
+
+  // SSRF: resolve and verify the host is in public IP space.
+  await assertPublicHost(parsed.hostname);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -87,8 +121,9 @@ export async function fetchUrl(url) {
   try {
     const res = await fetch(url, {
       signal: controller.signal,
+      redirect: 'follow', // Browser-equivalent; max 20 redirects in undici default
       headers: {
-        'User-Agent': 'DevListen/3.1 (educational tool)',
+        'User-Agent': 'ASIDE/3.1 (educational tool)',
         'Accept': 'text/html,application/xhtml+xml,text/plain',
       },
     });
@@ -96,8 +131,34 @@ export async function fetchUrl(url) {
 
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 
+    // Cap response size BEFORE materializing it in memory.
+    const declared = parseInt(res.headers.get('content-length') || '0', 10);
+    if (declared > MAX_FETCH_BYTES) {
+      throw new Error(`Response too large: ${declared} bytes (max ${MAX_FETCH_BYTES})`);
+    }
+
+    // Stream-read with running byte cap (handles missing Content-Length).
+    const reader = res.body?.getReader();
+    let chunks = [];
+    let bytes = 0;
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        bytes += value.length;
+        if (bytes > MAX_FETCH_BYTES) {
+          controller.abort();
+          throw new Error(`Response exceeded ${MAX_FETCH_BYTES} byte cap mid-stream`);
+        }
+        chunks.push(value);
+      }
+    }
+    const decoded = new TextDecoder().decode(
+      chunks.length ? Buffer.concat(chunks.map((c) => Buffer.from(c))) : Buffer.alloc(0),
+    );
+
     const contentType = res.headers.get('content-type') || '';
-    const text = await res.text();
+    const text = decoded;
 
     let content = '';
 

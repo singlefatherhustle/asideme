@@ -311,9 +311,11 @@ export async function ingestDirectory(dir, apiKey) {
   return results;
 }
 
-export function docsCount()     { try { return db.prepare('SELECT COUNT(*) as n FROM docs').get().n; } catch(_) { return 0; } }
-export function listDocTopics() { try { return db.prepare('SELECT DISTINCT unit, topic, title, file_type FROM docs ORDER BY unit, topic').all(); } catch(_) { return []; } }
-export function getDocByPath(p) { try { return db.prepare('SELECT * FROM docs WHERE path=?').get(p); } catch(_) { return null; } }
+// Filters out soft-deleted docs (removed_at IS NOT NULL) so admin takedowns
+// disappear from the public library + retrieval pipeline immediately.
+export function docsCount()     { try { return db.prepare('SELECT COUNT(*) as n FROM docs WHERE removed_at IS NULL').get().n; } catch(_) { return 0; } }
+export function listDocTopics() { try { return db.prepare('SELECT id, path, unit, topic, title, file_type FROM docs WHERE removed_at IS NULL ORDER BY unit, topic').all(); } catch(_) { return []; } }
+export function getDocByPath(p) { try { return db.prepare('SELECT * FROM docs WHERE path=? AND removed_at IS NULL').get(p); } catch(_) { return null; } }
 
 // ── CLI usage: node ingest.js <path> ─────────────────────────────────────────
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
