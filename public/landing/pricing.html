@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>ASIDE — Pricing</title>
+    <meta
+      name="description"
+      content="ASIDE pricing. 48-hour free trial, then $9/month for the hosted Pro plan, $29/seat for Team. Self-hosting is free if you bring your own keys."
+    />
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <script>
+      try {
+        const t = localStorage.getItem("aside-theme") || "dark";
+        if (t === "light")
+          document.documentElement.setAttribute("data-theme", "light");
+      } catch (_) {}
+    </script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand" aria-label="ASIDE home">
+          <span class="mark" aria-hidden="true"></span>
+          ASIDE
+          <span class="ver">v3</span>
+        </a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html" class="active">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/#faq">FAQ</a>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+          </button>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Hero ──────────────────────────────────────────────────────── -->
+    <header class="hero container" style="padding-bottom: 40px;">
+      <span class="kicker">
+        <span class="dot"></span>
+        48-hour free trial · then $9/mo
+      </span>
+
+      <h1 class="h-hero" style="font-size: clamp(40px, 7vw, 96px);">
+        Pay for nothing<span class="dash"></span>
+        <br />
+        <em>until it earns its keep.</em>
+      </h1>
+
+      <p class="sub">
+        Start with the 48-hour trial. No card. If ASIDE is worth $9 a month
+        to you when the trial ends, stay. If not, the library stays
+        browseable — just generation pauses.
+      </p>
+    </header>
+
+    <!-- ── Pricing tiers ─────────────────────────────────────────────── -->
+    <!-- Self-host (free + open source) used to appear as a third tier card
+         here. It was demoted to a small footer link below — the primary
+         marketing audience is non-technical cert-prep students who don't
+         need to see "clone the repo" copy in their tier comparison. The
+         developer audience still finds the GitHub link in the section
+         under the tiers + on the manifesto page. -->
+    <section class="section container" style="padding-top: 20px;">
+      <div class="prices prices-2up">
+        <!-- Pro -->
+        <article class="price featured reveal">
+          <div class="price-name">Pro</div>
+          <div>
+            <div class="price-amount">
+              <sup>$</sup>9<span class="per">/month</span>
+            </div>
+            <p style="color: var(--text-dim); font-size: 14px; margin: 6px 0 0;">
+              Hosted. AI and transcription all included. Nothing to set up.
+            </p>
+          </div>
+          <ul class="price-list">
+            <li>Hosted at aside.app — no setup</li>
+            <li>AI answers included</li>
+            <li>Live transcription included</li>
+            <li>Unlimited recordings + transcripts</li>
+            <li>Searchable library</li>
+            <li>Quizzes, flashcards, summaries</li>
+            <li>Export to Markdown or PDF</li>
+            <li>Email support · 48h response</li>
+            <li>Cancel anytime</li>
+          </ul>
+          <a href="/app" class="btn btn-primary">
+            Start free trial <span class="arrow">→</span>
+          </a>
+        </article>
+
+        <!-- Team -->
+        <article class="price reveal">
+          <div class="price-name">Team</div>
+          <div>
+            <div class="price-amount">
+              <sup>$</sup>29<span class="per">/seat/mo</span>
+            </div>
+            <p style="color: var(--text-dim); font-size: 14px; margin: 6px 0 0;">
+              For bootcamps, training programs, and classroom deployments.
+            </p>
+          </div>
+          <ul class="price-list">
+            <li>Everything in Pro</li>
+            <li>Shared class libraries</li>
+            <li>Centralized billing</li>
+            <li>SSO (SAML / Google)</li>
+            <li>Admin dashboard + usage analytics</li>
+            <li>Custom integration options</li>
+            <li>SLA + dedicated support channel</li>
+            <li>Minimum 5 seats</li>
+          </ul>
+          <a href="mailto:hello@aside.app?subject=ASIDE%20Team" class="btn btn-ghost">
+            Talk to us <span class="arrow">→</span>
+          </a>
+        </article>
+      </div>
+
+      <p
+        style="
+          text-align: center;
+          margin-top: 56px;
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--text-dim);
+        "
+      >
+        48-hour trial. No card required. Annual billing saves 20%.
+      </p>
+
+      <!-- Self-host: quiet single line for the developer audience. Doesn't
+           compete visually with the Pro/Team cards above. -->
+      <div
+        style="
+          margin-top: 40px;
+          padding: 22px 24px;
+          border-top: 0.5px solid var(--hairline);
+          text-align: center;
+          color: var(--text-dim);
+          font-size: 14px;
+          line-height: 1.6;
+        "
+      >
+        Want to run ASIDE on your own machine instead?
+        Self-hosting is free with your own API keys —
+        <a
+          href="https://github.com/singlefatherhustle/devlistenv3"
+          rel="noopener"
+          style="color: var(--text); text-decoration: underline; text-underline-offset: 3px;"
+          >see it on GitHub →</a
+        >
+      </div>
+    </section>
+
+    <!-- ── Compare ───────────────────────────────────────────────────── -->
+    <section class="section container">
+      <div class="reveal">
+        <span class="section-tag">Compare</span>
+        <h2 class="section-title">What's in each tier.</h2>
+      </div>
+
+      <div
+        class="reveal"
+        style="
+          background: var(--bg-card);
+          border: 0.5px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+        "
+      >
+        <table
+          style="
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+          "
+        >
+          <thead>
+            <tr style="background: var(--surface); text-align: left;">
+              <th
+                style="
+                  padding: 18px 22px;
+                  font-family: var(--font-mono);
+                  font-size: 11px;
+                  letter-spacing: 0.16em;
+                  text-transform: uppercase;
+                  color: var(--text-dim);
+                  font-weight: 500;
+                "
+              >
+                Feature
+              </th>
+              <th style="padding: 18px 22px; color: var(--red);">Pro</th>
+              <th style="padding: 18px 22px; color: var(--text);">Team</th>
+            </tr>
+          </thead>
+          <tbody style="color: var(--text-dim);">
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Live transcription</td>
+              <td style="padding: 14px 22px; color: var(--text);">Included</td>
+              <td style="padding: 14px 22px; color: var(--text);">Included</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">AI answers</td>
+              <td style="padding: 14px 22px; color: var(--text);">Included</td>
+              <td style="padding: 14px 22px; color: var(--text);">Included</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Quizzes, flashcards, summaries</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Export to Markdown + PDF</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Installable on desktop + mobile</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Works offline (library)</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Shared class libraries</td>
+              <td style="padding: 14px 22px;">—</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">SSO / SAML</td>
+              <td style="padding: 14px 22px;">—</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Admin dashboard + analytics</td>
+              <td style="padding: 14px 22px;">—</td>
+              <td style="padding: 14px 22px; color: var(--text);">✓</td>
+            </tr>
+            <tr style="border-top: 0.5px solid var(--hairline);">
+              <td style="padding: 14px 22px;">Support</td>
+              <td style="padding: 14px 22px; color: var(--text);">Email · 48h</td>
+              <td style="padding: 14px 22px; color: var(--text);">Dedicated</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── CTA strip ─────────────────────────────────────────────────── -->
+    <section class="container">
+      <div class="cta-strip reveal">
+        <h2 class="h-hero">
+          Try it free for 48 hours<span class="dash"></span>
+        </h2>
+        <p class="sub" style="margin-bottom: 30px;">
+          No card. No contract. Just open it and see if it earns the $9.
+        </p>
+        <a href="/app" class="btn btn-primary">
+          Launch the app <span class="arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — built by Beat Dump Inc.</span>
+          <span>Franklin, TN</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/landing/landing.js" defer></script>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

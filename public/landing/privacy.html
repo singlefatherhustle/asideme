@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ASIDE — Privacy Policy</title>
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal { max-width: 720px; margin: 0 auto; font-size: 17px; line-height: 1.7; }
+      .legal h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(24px, 3vw, 32px); margin: 48px 0 14px; letter-spacing: -0.01em; }
+      .legal h3 { font-family: var(--font-sans); font-weight: 600; font-size: 18px; margin: 24px 0 8px; }
+      .legal p { color: var(--text-dim); margin: 0 0 14px; }
+      .legal ul { color: var(--text-dim); padding-left: 22px; margin: 12px 0 18px; }
+      .legal li { margin-bottom: 6px; }
+      .legal strong { color: var(--text); font-weight: 500; }
+      .legal .updated { font-family: var(--font-mono); font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+    </style>
+    <script>try { const t = localStorage.getItem("aside-theme") || "dark"; if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (_) {}</script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true"></span>ASIDE<span class="ver">v3</span></a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero container" style="padding-bottom: 30px;">
+      <h1 class="h-hero" style="font-size: clamp(40px, 6vw, 72px);">Privacy<span class="dash"></span><br /><em>policy.</em></h1>
+      <p class="sub updated" style="margin-top:14px">Last updated: May 2026</p>
+    </header>
+
+    <main class="section container">
+      <article class="legal">
+        <p>This Privacy Policy describes how ASIDE ("we", "us") collects, uses, and protects your information when you use ASIDE.</p>
+
+        <h2>What we collect</h2>
+
+        <h3>Account data</h3>
+        <ul>
+          <li><strong>Email address</strong> — required to create an account and used to send a magic-link verification email.</li>
+          <li><strong>Account timestamps</strong> — when you signed up and when your trial expires.</li>
+          <li><strong>Subscription status</strong> — if you upgrade to a paid plan, we store the Stripe customer/subscription IDs and current plan status. We do not store card details.</li>
+        </ul>
+
+        <h3>Usage data</h3>
+        <ul>
+          <li><strong>Sessions and transcripts</strong> — every recording you start creates a session. The transcript text from your live audio is stored against that session for retrieval-augmented generation (RAG).</li>
+          <li><strong>Questions and answers</strong> — text of questions you ask and the AI-generated answers are stored against the session.</li>
+          <li><strong>Generation counts</strong> — number of summaries/quizzes/flashcards generated, for daily-cap enforcement.</li>
+        </ul>
+
+        <h3>What we do NOT store</h3>
+        <ul>
+          <li><strong>Raw audio</strong> — audio is streamed to the speech-to-text provider, transcribed, and discarded. We never store the audio itself.</li>
+          <li><strong>Card numbers</strong> — Stripe handles all card data. We only receive subscription metadata.</li>
+        </ul>
+
+        <h2>Who we share data with</h2>
+        <ul>
+          <li><strong>Anthropic</strong> — your questions and the retrieved transcript chunks are sent to Anthropic's Claude API to generate answers. <a href="https://www.anthropic.com/legal/privacy" style="color:var(--cyan)">Anthropic's privacy policy</a>.</li>
+          <li><strong>Speech-to-text provider</strong> — audio is streamed in real time to your configured provider (Deepgram by default). The provider returns transcript text; we discard the audio.</li>
+          <li><strong>Resend</strong> — used to send transactional email (magic-link verification).</li>
+          <li><strong>Stripe</strong> — used to process payments. We send your email address; Stripe handles billing.</li>
+        </ul>
+
+        <h2>Automated processing and AI</h2>
+        <p>ASIDE relies on automated AI processing to deliver its core features:</p>
+        <ul>
+          <li><strong>Transcription</strong> — your audio is sent to a speech-to-text model (Deepgram by default) which automatically converts speech into text. The audio itself is discarded after transcription; only the text is retained.</li>
+          <li><strong>Answer generation</strong> — when you ask a question, your question and relevant portions of your transcript or uploaded materials are sent to Anthropic's Claude model, which generates an answer. The answer is not human-reviewed before it appears.</li>
+          <li><strong>Quizzes, flashcards, summaries</strong> — generated automatically by Claude from your selected material.</li>
+        </ul>
+        <p>This is fully automated processing within the meaning of GDPR Article 22 and similar laws. ASIDE does not make consequential decisions about you (it doesn't decide whether to hire you, lend to you, or grant you a license — it only helps you study). If you don't want your text data processed by AI, don't use the question, transcription, or generation features. You can still browse the library without any AI processing of your inputs.</p>
+
+        <p>We do not use your transcripts, questions, or uploaded materials to train any AI models. Our processors (Anthropic, Deepgram) have their own data-use policies — see their privacy pages linked above.</p>
+
+        <h2>Your rights</h2>
+        <p>If you have an ASIDE account, you can:</p>
+        <ul>
+          <li><strong>Export your data</strong> — request a JSON dump of your sessions, transcripts, and questions via the Settings menu in the app, or POST to <code>/api/account/export</code>.</li>
+          <li><strong>Delete your account</strong> — wipes your user row and cascades to all your sessions, transcripts, and messages. Via the Settings menu or POST to <code>/api/account/delete</code>.</li>
+          <li><strong>Sign out everywhere</strong> — invalidates all sessions including any cookies still in browsers you've forgotten about.</li>
+        </ul>
+
+        <h2>Cookies</h2>
+        <p>We use one cookie: <code>aside_session</code>. It is HTTP-only, sent only over HTTPS in production, and signed with a server-side HMAC secret. We do not use third-party analytics, advertising, or tracking cookies.</p>
+
+        <h2>Data retention</h2>
+        <p>Account data is retained while your account is active. Session data older than 30 days is automatically cleaned up. When you delete your account, all associated data is removed within 24 hours.</p>
+
+        <h2>Age</h2>
+        <p>ASIDE is intended for adults studying for professional certifications. We require account holders to be at least 18 years old and we do not knowingly collect data from anyone under 18. If you believe a minor has created an account, contact us and we'll remove it.</p>
+
+        <h2>Changes to this policy</h2>
+        <p>If we make material changes to this policy, we will notify active users by email and update the "Last updated" date above.</p>
+
+        <h2>Contact</h2>
+        <p>Questions about this policy? Email <a href="mailto:hello@aside.app" style="color:var(--cyan)">hello@aside.app</a>.</p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — Beat Dump Inc.</span>
+          <span>
+            <a href="/landing/privacy.html" style="color:inherit">Privacy</a> ·
+            <a href="/landing/terms.html" style="color:inherit">Terms</a> ·
+            <a href="/landing/subprocessors.html" style="color:inherit">Sub-processors</a> ·
+            <a href="/landing/dpa.html" style="color:inherit">DPA</a> ·
+            <a href="/landing/accessibility.html" style="color:inherit">Accessibility</a> &middot;
+            <a href="/landing/dmca.html" style="color:inherit">DMCA</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ASIDE — Accessibility statement</title>
+    <meta name="description" content="ASIDE's commitment to accessible product design, current WCAG conformance, known issues, and how to report problems." />
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal { max-width: 720px; margin: 0 auto; font-size: 17px; line-height: 1.7; }
+      .legal h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(24px, 3vw, 32px); margin: 48px 0 14px; letter-spacing: -0.01em; }
+      .legal h3 { font-family: var(--font-sans); font-weight: 600; font-size: 18px; margin: 24px 0 8px; }
+      .legal p { color: var(--text-dim); margin: 0 0 14px; }
+      .legal ul { color: var(--text-dim); padding-left: 22px; margin: 12px 0 18px; }
+      .legal li { margin-bottom: 6px; }
+      .legal strong { color: var(--text); font-weight: 500; }
+      .legal .updated { font-family: var(--font-mono); font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+      .legal .badge { display: inline-block; padding: 4px 10px; border: 0.5px solid var(--border); border-radius: 999px; font-family: var(--font-mono); font-size: 11px; color: var(--text); margin-right: 8px; }
+    </style>
+    <script>try { const t = localStorage.getItem("aside-theme") || "dark"; if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (_) {}</script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true"></span>ASIDE<span class="ver">v3</span></a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero container" style="padding-bottom: 30px;">
+      <h1 class="h-hero" style="font-size: clamp(40px, 6vw, 72px);">Accessibility<span class="dash"></span><br /><em>statement.</em></h1>
+      <p class="sub updated" style="margin-top:14px">Last updated: May 2026</p>
+    </header>
+
+    <main class="section container">
+      <article class="legal">
+        <p>ASIDE is built to be usable by everyone who studies, including users with disabilities. This page tells you where we conform to the Web Content Accessibility Guidelines (WCAG), where we don't yet, and how to reach us if you hit a barrier.</p>
+
+        <h2>Conformance target</h2>
+
+        <p>
+          <span class="badge">WCAG 2.2</span>
+          <span class="badge">Target: AA</span>
+        </p>
+
+        <p>We aim for <strong>WCAG 2.2 Level AA</strong> conformance across the public site (landing pages, pricing, legal pages) and the ASIDE app itself. We are not currently externally audited; this is an internal commitment.</p>
+
+        <h2>What works well</h2>
+
+        <ul>
+          <li><strong>Keyboard navigation</strong> — every interactive element in the app and on the landing pages is reachable and operable by keyboard. Visible focus indicators are present.</li>
+          <li><strong>Screen reader support</strong> — ARIA labels are on icon-only buttons, dialogs are marked as <code>role="dialog"</code> with <code>aria-modal="true"</code>, status updates use <code>aria-live</code> regions, and form fields have associated labels.</li>
+          <li><strong>Reduced motion</strong> — the landing pages and app respect <code>prefers-reduced-motion</code> and disable scroll animations and bounces.</li>
+          <li><strong>Theme</strong> — both dark and light themes maintain ≥4.5:1 contrast on body text and ≥3:1 on large text.</li>
+          <li><strong>Resizable text</strong> — the app uses relative units so browser zoom up to 200% works without layout breakage.</li>
+          <li><strong>Captions / transcripts</strong> — the entire point of ASIDE is producing text transcripts of spoken audio. The transcript appears live and is downloadable as plain text.</li>
+        </ul>
+
+        <h2>Known gaps</h2>
+
+        <p>We are honest about what doesn't yet meet AA:</p>
+
+        <ul>
+          <li><strong>Code blocks in answers</strong> — Prism syntax-highlighted code in chat answers uses color to convey meaning. We're working on a high-contrast theme option that doesn't rely on color alone. (WCAG 1.4.1)</li>
+          <li><strong>Library card thumbnails</strong> — the &quot;md&quot; label on document cards is purely decorative but is not yet marked as such for screen readers in every code path. (WCAG 1.1.1)</li>
+          <li><strong>The 3D logo mark</strong> on the live landing animates with a float + rotation. It pauses for reduced-motion users but the static fallback could be more obvious. (WCAG 2.3.3)</li>
+          <li><strong>Mobile microphone affordance</strong> — the visible recording indicator is present, but the focus order around the mic button on small screens needs revisiting.</li>
+        </ul>
+
+        <p>We track these in our backlog and intend to close them. If a gap is blocking you, please tell us — see "Reporting" below.</p>
+
+        <h2>Out of scope</h2>
+
+        <ul>
+          <li>Content inside user-uploaded documents (PDFs, slides, third-party study guides) — accessibility of those files is the responsibility of the upload's original author.</li>
+          <li>Third-party services we link to (Anthropic, Stripe, Resend, Deepgram) — see their own accessibility statements.</li>
+        </ul>
+
+        <h2>Compatibility</h2>
+
+        <p>ASIDE is tested on:</p>
+
+        <ul>
+          <li>Latest two versions of Chrome, Safari (macOS + iOS), Firefox, and Edge</li>
+          <li>VoiceOver on macOS and iOS</li>
+          <li>NVDA + JAWS on Windows (informal testing)</li>
+        </ul>
+
+        <p>If you use a screen reader or assistive technology not on this list and it doesn't work, that's a bug — please report it.</p>
+
+        <h2>Reporting a problem</h2>
+
+        <p>If you hit any accessibility barrier in ASIDE — broken focus order, missing label, low contrast, anything — please tell us so we can fix it. Email <a href="mailto:accessibility@aside.app" style="color:var(--cyan)">accessibility@aside.app</a>. We aim to acknowledge within 2 business days and to fix or land a workaround within 30 days for issues that block use.</p>
+
+        <h2>Legal basis</h2>
+
+        <p>This statement is provided in good faith and is the document we will rely on for EU Accessibility Act (Directive 2019/882) and Section 508 inquiries. It is not externally audited and does not constitute an accessibility certification.</p>
+
+        <h2>Contact</h2>
+
+        <p>Email <a href="mailto:accessibility@aside.app" style="color:var(--cyan)">accessibility@aside.app</a> for accessibility-specific concerns. General support: <a href="mailto:hello@aside.app" style="color:var(--cyan)">hello@aside.app</a>.</p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — Beat Dump Inc.</span>
+          <span>
+            <a href="/landing/privacy.html" style="color:inherit">Privacy</a> ·
+            <a href="/landing/terms.html" style="color:inherit">Terms</a> ·
+            <a href="/landing/subprocessors.html" style="color:inherit">Sub-processors</a> ·
+            <a href="/landing/dpa.html" style="color:inherit">DPA</a> ·
+            <a href="/landing/accessibility.html" style="color:inherit">Accessibility</a> &middot;
+            <a href="/landing/dmca.html" style="color:inherit">DMCA</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

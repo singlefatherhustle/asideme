@@ -1,0 +1,16 @@
+# Responsible disclosure for ASIDE
+# Found something? Please tell us. Bug bounties are not yet formalized,
+# but we credit responsible reporters in the changelog and respond fast.
+
+Contact: mailto:security@aside.app
+Contact: mailto:compliance@aside.app
+Expires: 2027-05-26T00:00:00Z
+Preferred-Languages: en
+Canonical: https://aside.app/.well-known/security.txt
+Policy: https://aside.app/landing/terms.html#5
+
+# Please:
+# - Give us a reasonable window to fix before disclosing publicly.
+# - Don't access data that isn't yours during testing.
+# - Don't run automated scanners against production beyond what's needed
+#   to demonstrate the issue — you'll trip our abuse rate limiters.

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ASIDE — Sub-processors</title>
+    <meta name="description" content="The third-party services ASIDE uses to deliver its product, what data each one processes, where they are located, and how we notify customers of changes." />
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal { max-width: 920px; margin: 0 auto; font-size: 17px; line-height: 1.7; }
+      .legal h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(24px, 3vw, 32px); margin: 48px 0 14px; letter-spacing: -0.01em; }
+      .legal h3 { font-family: var(--font-sans); font-weight: 600; font-size: 18px; margin: 24px 0 8px; }
+      .legal p { color: var(--text-dim); margin: 0 0 14px; }
+      .legal ul { color: var(--text-dim); padding-left: 22px; margin: 12px 0 18px; }
+      .legal li { margin-bottom: 6px; }
+      .legal strong { color: var(--text); font-weight: 500; }
+      .legal .updated { font-family: var(--font-mono); font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+      .sp-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+      .sp-table th, .sp-table td { text-align: left; padding: 12px 14px; vertical-align: top; border-bottom: 0.5px solid var(--hairline); }
+      .sp-table th { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+      .sp-table td { color: var(--text-dim); }
+      .sp-table td strong { color: var(--text); }
+      .sp-table .sp-name { color: var(--text); font-weight: 500; }
+      .sp-table a { color: var(--cyan); }
+      @media (max-width: 720px) {
+        .sp-table { font-size: 13px; }
+        .sp-table th, .sp-table td { padding: 9px 8px; }
+      }
+    </style>
+    <script>try { const t = localStorage.getItem("aside-theme") || "dark"; if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (_) {}</script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true"></span>ASIDE<span class="ver">v3</span></a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero container" style="padding-bottom: 30px;">
+      <h1 class="h-hero" style="font-size: clamp(40px, 6vw, 72px);">Sub<span class="dash"></span><br /><em>processors.</em></h1>
+      <p class="sub updated" style="margin-top:14px">Last updated: May 2026</p>
+    </header>
+
+    <main class="section container">
+      <article class="legal">
+        <p>This page lists every third-party service ASIDE uses to deliver its product. Each one processes some piece of your data on our behalf. We list them here so you know who, what, where, and how to find out when this list changes.</p>
+
+        <p>If you sign a Data Processing Addendum with us (see <a href="/landing/dpa.html" style="color:var(--cyan)">DPA</a>), this list is the official list of authorized sub-processors at the time of signature. Material changes are notified at least 30 days in advance — see the bottom of this page.</p>
+
+        <h2>Current sub-processors</h2>
+
+        <table class="sp-table" aria-label="Sub-processors">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Purpose</th>
+              <th>Data processed</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sp-name">
+                Anthropic, PBC<br />
+                <a href="https://www.anthropic.com/legal/privacy" rel="noopener">privacy policy</a>
+              </td>
+              <td>Generates answers, quizzes, flashcards, and summaries using the Claude API.</td>
+              <td>Your questions; relevant portions of your transcript or uploaded materials; system prompts.</td>
+              <td>United States</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Deepgram, Inc.<br />
+                <a href="https://deepgram.com/privacy" rel="noopener">privacy policy</a>
+              </td>
+              <td>Real-time speech-to-text transcription of the audio you choose to capture.</td>
+              <td>Live audio stream (discarded by ASIDE after transcription; retention at Deepgram per their policy).</td>
+              <td>United States</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Resend, Inc.<br />
+                <a href="https://resend.com/legal/privacy-policy" rel="noopener">privacy policy</a>
+              </td>
+              <td>Sends transactional email — magic-link verification, billing receipts, account notifications.</td>
+              <td>Your email address; the email subject and body for that one message.</td>
+              <td>United States</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Stripe, Inc.<br />
+                <a href="https://stripe.com/privacy" rel="noopener">privacy policy</a>
+              </td>
+              <td>Processes subscription payments and stores card details (we never see your card number).</td>
+              <td>Your email address; subscription metadata. Card data is collected directly by Stripe.</td>
+              <td>United States / global</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Fly.io, Inc.<br />
+                <a href="https://fly.io/legal/privacy-policy/" rel="noopener">privacy policy</a>
+              </td>
+              <td>Hosts the ASIDE servers and the persistent volume that stores your account database.</td>
+              <td>Everything ASIDE stores: account row, sessions, transcripts, questions, answers, uploaded files. Encrypted at rest.</td>
+              <td>Atlanta, USA (primary region)</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Google Fonts<br />
+                <a href="https://policies.google.com/privacy" rel="noopener">privacy policy</a>
+              </td>
+              <td>Serves the Fraunces and Geist typefaces used in the marketing pages.</td>
+              <td>Your IP address (whenever your browser requests a font file).</td>
+              <td>Global edge network</td>
+            </tr>
+            <tr>
+              <td class="sp-name">
+                Cloudflare CDN (via cdnjs)<br />
+                <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">privacy policy</a>
+              </td>
+              <td>Serves the Prism syntax-highlighting library used to render code samples in the app.</td>
+              <td>Your IP address (whenever your browser requests a Prism file).</td>
+              <td>Global edge network</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Optional sub-processors</h2>
+
+        <p>If your STT provider env var is set to one of these, the corresponding service receives the audio stream instead of Deepgram. Self-hosting customers may pick differently. ASIDE itself does not send audio to any of these unless you configure it.</p>
+
+        <ul>
+          <li><strong>AWS Transcribe</strong> — Amazon Web Services, Inc. (United States)</li>
+          <li><strong>Google Cloud Speech-to-Text</strong> — Google LLC (United States)</li>
+          <li><strong>Microsoft Azure Speech</strong> — Microsoft Corporation (United States)</li>
+          <li><strong>OpenAI Whisper API</strong> — OpenAI, L.L.C. (United States)</li>
+        </ul>
+
+        <h2>What is NOT a sub-processor</h2>
+
+        <ul>
+          <li><strong>Analytics</strong> — ASIDE does not use Google Analytics, Mixpanel, Amplitude, Segment, PostHog, or any other product-analytics service.</li>
+          <li><strong>Advertising</strong> — no ad networks, no remarketing pixels, no Meta Pixel, no LinkedIn Insight tag.</li>
+          <li><strong>Error tracking</strong> — Sentry is not currently in use. If we add it, this page will be updated 30 days in advance.</li>
+        </ul>
+
+        <h2>Cross-border transfers</h2>
+
+        <p>If you access ASIDE from outside the United States, your data is transferred to and processed in the United States by our processors above. Where required, we rely on Standard Contractual Clauses (SCCs) and equivalent transfer mechanisms.</p>
+
+        <h2>How we notify changes</h2>
+
+        <p>Before we add or remove a sub-processor that processes your data:</p>
+
+        <ul>
+          <li><strong>Material additions</strong> — we update this page at least 30 days before the new processor goes live. If you've signed a DPA with us, you also get an email at the address on the DPA.</li>
+          <li><strong>Removals</strong> — we update this page on or before the day the processor is removed.</li>
+          <li><strong>Sub-processor's privacy-policy URL changes</strong> — we update the link silently; no notification.</li>
+        </ul>
+
+        <h2>Object to a sub-processor</h2>
+
+        <p>If you don't want your data processed by one of the sub-processors above, you can stop using the service and request account deletion via <a href="/landing/privacy.html#your-rights" style="color:var(--cyan)">Your rights</a> in the Privacy Policy. For DPA customers, see the objection procedure in your signed DPA.</p>
+
+        <h2>Contact</h2>
+
+        <p>Questions about this list or about how we handle a specific processor? Email <a href="mailto:compliance@aside.app" style="color:var(--cyan)">compliance@aside.app</a>.</p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — Beat Dump Inc.</span>
+          <span>
+            <a href="/landing/privacy.html" style="color:inherit">Privacy</a> ·
+            <a href="/landing/terms.html" style="color:inherit">Terms</a> ·
+            <a href="/landing/subprocessors.html" style="color:inherit">Sub-processors</a> ·
+            <a href="/landing/dpa.html" style="color:inherit">DPA</a> ·
+            <a href="/landing/accessibility.html" style="color:inherit">Accessibility</a> &middot;
+            <a href="/landing/dmca.html" style="color:inherit">DMCA</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ASIDE — Report abuse</title>
+    <meta name="description" content="Report abusive content, recording-consent violations, or other terms-of-service violations on ASIDE. For copyright issues see DMCA." />
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal { max-width: 720px; margin: 0 auto; font-size: 16px; line-height: 1.7; }
+      .legal h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 2.6vw, 28px); margin: 40px 0 12px; letter-spacing: -0.01em; }
+      .legal p { color: var(--text-dim); margin: 0 0 12px; }
+      .legal strong { color: var(--text); font-weight: 500; }
+      .report-form { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; padding: 24px 22px; margin: 32px 0; }
+      .report-form .row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+      .report-form label { font-size: 13px; color: var(--text-dim); }
+      .report-form label strong { color: var(--text); }
+      .report-form input, .report-form textarea, .report-form select {
+        background: var(--surface, rgba(255,255,255,0.04));
+        border: 0.5px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 14px;
+        color: var(--text);
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .report-form textarea { min-height: 100px; resize: vertical; font-family: var(--font-sans); }
+      .report-form input:focus, .report-form textarea:focus, .report-form select:focus { outline: 1px solid var(--cyan); outline-offset: 1px; }
+      .report-form .submit-row { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 8px; }
+      .report-form .status { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 14px; display: none; }
+      .report-form .status.is-success { display: block; background: rgba(57, 229, 168, 0.06); border: 0.5px solid rgba(57, 229, 168, 0.3); color: var(--green); }
+      .report-form .status.is-error { display: block; background: rgba(255, 60, 75, 0.06); border: 0.5px solid rgba(255, 60, 75, 0.3); color: var(--red); }
+    </style>
+    <script>try { const t = localStorage.getItem("aside-theme") || "dark"; if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (_) {}</script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true"></span>ASIDE<span class="ver">v3</span></a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero container" style="padding-bottom: 30px;">
+      <h1 class="h-hero" style="font-size: clamp(40px, 6vw, 72px);">Report<span class="dash"></span><br /><em>abuse.</em></h1>
+      <p class="sub" style="margin-top:14px">Tell us what's wrong. We'll review within 24 hours.</p>
+    </header>
+
+    <main class="section container">
+      <article class="legal">
+        <p>Use this form to report content on ASIDE that violates our <a href="/landing/terms.html" style="color:var(--cyan)">Terms of Service</a> — harassment, illegal content, recording someone without their consent, impersonation, or anything else clearly inappropriate.</p>
+
+        <p>This form is for <strong>non-copyright</strong> complaints. For copyright takedowns, please use the formal <a href="/landing/dmca.html" style="color:var(--cyan)">DMCA process</a> — it has specific legal requirements we have to follow.</p>
+
+        <p>If you have an ASIDE account, you can also use the <strong>Report</strong> button next to any document or transcript entry inside the app — those reports come straight to the same queue with your identity attached.</p>
+
+        <form id="reportForm" class="report-form" novalidate>
+          <div class="row">
+            <label for="email"><strong>Your email</strong> (so we can follow up)</label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="row">
+            <label for="reason"><strong>What kind of issue?</strong></label>
+            <select id="reason" name="reason" required>
+              <option value="">Pick one…</option>
+              <option value="recording_without_consent">Recorded without my consent</option>
+              <option value="impersonation">Impersonating me or someone else</option>
+              <option value="harassment">Harassment or hate speech</option>
+              <option value="illegal_content">Illegal content (CSAM, drugs, weapons, etc.)</option>
+              <option value="privacy_violation">Doxxing or privacy violation</option>
+              <option value="spam">Spam or scam</option>
+              <option value="other">Other (explain below)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="contentType"><strong>What part of ASIDE?</strong></label>
+            <select id="contentType" name="contentType" required>
+              <option value="">Pick one…</option>
+              <option value="doc">An uploaded document</option>
+              <option value="transcript">A live transcript</option>
+              <option value="session">A whole session</option>
+              <option value="other">Other / I don't know</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="contentId">Location / identifier (URL, document name, session ID — whatever you have)</label>
+            <input id="contentId" name="contentId" type="text" />
+          </div>
+          <div class="row">
+            <label for="details"><strong>What happened?</strong> Tell us what you saw and why it's a problem.</label>
+            <textarea id="details" name="details" required></textarea>
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary">Send report</button>
+          </div>
+          <div id="reportStatus" class="status" role="status" aria-live="polite"></div>
+        </form>
+
+        <h2>What we do with reports</h2>
+
+        <p>Every report goes to a queue our team reviews within 24 hours. We may:</p>
+
+        <ul>
+          <li>Remove the reported content if it violates our Terms.</li>
+          <li>Suspend or terminate the account that posted it for serious or repeat violations.</li>
+          <li>Forward the report to law enforcement when required by law (e.g. CSAM via the NCMEC CyberTipline).</li>
+          <li>Reply to you at the email you provided, usually within 2 business days.</li>
+        </ul>
+
+        <p>Knowingly false reports waste our time and may result in your own account being suspended. Reports made in good faith — even if we don't act on them — are always welcome.</p>
+
+        <h2>Other ways to reach us</h2>
+
+        <p>
+          Abuse / Terms violations: <a href="mailto:abuse@aside.app" style="color:var(--cyan)">abuse@aside.app</a><br />
+          Copyright takedowns: <a href="/landing/dmca.html" style="color:var(--cyan)">DMCA page</a> or <a href="mailto:dmca@aside.app" style="color:var(--cyan)">dmca@aside.app</a><br />
+          General support: <a href="mailto:hello@aside.app" style="color:var(--cyan)">hello@aside.app</a>
+        </p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — Beat Dump Inc.</span>
+          <span>
+            <a href="/landing/privacy.html" style="color:inherit">Privacy</a> ·
+            <a href="/landing/terms.html" style="color:inherit">Terms</a> ·
+            <a href="/landing/subprocessors.html" style="color:inherit">Sub-processors</a> ·
+            <a href="/landing/dpa.html" style="color:inherit">DPA</a> ·
+            <a href="/landing/accessibility.html" style="color:inherit">Accessibility</a> ·
+            <a href="/landing/dmca.html" style="color:inherit">DMCA</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        "use strict";
+        const form = document.getElementById("reportForm");
+        const status = document.getElementById("reportStatus");
+        if (!form) return;
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = {
+            email: document.getElementById("email").value.trim(),
+            reason: document.getElementById("reason").value,
+            contentType: document.getElementById("contentType").value,
+            contentId: document.getElementById("contentId").value.trim() || "unknown",
+            details: document.getElementById("details").value.trim(),
+          };
+          if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            status.className = "status is-error";
+            status.textContent = "Please enter a valid email address.";
+            return;
+          }
+          if (!data.reason || !data.contentType || !data.details) {
+            status.className = "status is-error";
+            status.textContent = "Please fill in all required fields.";
+            return;
+          }
+          status.className = "status is-success";
+          status.textContent = "Sending…";
+          try {
+            const r = await fetch("/api/abuse-report-public", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+            const d = await r.json();
+            if (!r.ok) throw new Error(d.error || "Submission failed");
+            status.className = "status is-success";
+            status.textContent =
+              "✓ Report received. Reference ID: " +
+              d.id +
+              ". We'll review within 24 hours and reply to " +
+              data.email +
+              ".";
+            form.reset();
+          } catch (err) {
+            status.className = "status is-error";
+            status.textContent = "Submission failed: " + (err.message || err);
+          }
+        });
+      })();
+    </script>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

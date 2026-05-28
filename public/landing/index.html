@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>ASIDE — Live class &amp; certification-prep assistant</title>
+    <meta
+      name="description"
+      content="ASIDE captures any live class audio — coding bootcamps, real-estate, contractor, HVAC, nursing, finance, whatever you're certifying in — transcribes it in real time, and answers what was just taught from your own study materials. Works offline."
+    />
+    <meta name="theme-color" content="#0B0B0E" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="ASIDE — Live class &amp; certification-prep assistant" />
+    <meta
+      property="og:description"
+      content="Real-time transcription + Claude on call. Rewind and ask what was just taught."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icons/icon-512.png" />
+    <script>
+      // Theme bootstrap (matches the app — read before paint to avoid FOUC).
+      try {
+        const t = localStorage.getItem("aside-theme") || "dark";
+        if (t === "light")
+          document.documentElement.setAttribute("data-theme", "light");
+      } catch (_) {}
+    </script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ── Nav ───────────────────────────────────────────────────────── -->
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand" aria-label="ASIDE home">
+          <span class="mark" aria-hidden="true"></span>
+          ASIDE
+          <span class="ver">v3</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="#faq">FAQ</a>
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="Toggle theme"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+              ></path>
+            </svg>
+          </button>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Hero ──────────────────────────────────────────────────────── -->
+    <header class="hero container">
+      <div class="hero-stage">
+        <div class="mark-3d" aria-hidden="true"></div>
+        <div class="mark-orbit" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+
+      <span class="kicker">
+        <span class="dot"></span>
+        Live class · Certification-exam prep · Any subject
+      </span>
+
+      <h1 class="h-hero">
+        Class is in session<span class="dash"></span>
+        <br />
+        <em>Rewind and ask.</em>
+      </h1>
+
+      <p class="sub">
+        ASIDE listens to your live class, builds a searchable corpus on the
+        fly, and <strong>answers what was just taught</strong> —
+        <strong>whatever you're studying for</strong>. Generate quizzes,
+        summaries, and flashcards from any topic. Export to Markdown or PDF.
+        <strong>Works offline once you've loaded the docs.</strong>
+      </p>
+
+      <!-- Signup form — 48-hour free trial on email submit -->
+      <form id="trialSignup" class="signup-form" autocomplete="on" novalidate>
+        <div class="signup-row">
+          <input
+            type="email"
+            id="trialEmail"
+            class="signup-email"
+            placeholder="you@email.com"
+            aria-label="Your email"
+            required
+          />
+          <button type="submit" class="btn btn-primary signup-submit">
+            Start free trial <span class="arrow">→</span>
+          </button>
+        </div>
+        <label class="signup-ageline">
+          <input
+            type="checkbox"
+            id="trialAge"
+            name="trialAge"
+            required
+            aria-required="true"
+          />
+          <span>
+            I confirm I am at least 18 years old and have read the
+            <a href="/landing/terms.html" target="_blank" rel="noopener">Terms</a>
+            and
+            <a href="/landing/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+          </span>
+        </label>
+        <div class="signup-fineprint">
+          48 hours free · no card · cancel anytime · email only, no password
+        </div>
+        <div id="trialStatus" class="signup-status" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="hero-cta">
+        <button
+          type="button"
+          id="installBtn"
+          class="btn btn-ghost"
+          hidden
+          aria-label="Install ASIDE as a desktop app"
+        >
+          ↓ Install desktop app
+        </button>
+        <a href="#how" class="btn btn-ghost">
+          How it works
+        </a>
+      </div>
+
+      <div class="trustline" aria-label="What you get out of the box">
+        <span>Live transcription</span>
+        <span>Ask &amp; answer</span>
+        <span>Bring your own materials</span>
+        <span>Works offline</span>
+        <span>Installable on any device</span>
+      </div>
+    </header>
+
+    <!-- ── Marquee ───────────────────────────────────────────────────── -->
+    <section class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Live <em>transcription</em></span>
+        <span><em>Rewind</em> and ask</span>
+        <span>Bring your own <em>materials</em></span>
+        <span>Quizzes &amp; <em>flashcards</em></span>
+        <span>Export to <em>Markdown</em></span>
+        <span>Export to <em>PDF</em></span>
+        <span>Works <em>offline</em></span>
+        <span><em>Any</em> certification</span>
+        <!-- duplicate for seamless loop -->
+        <span>Live <em>transcription</em></span>
+        <span><em>Rewind</em> and ask</span>
+        <span>Bring your own <em>materials</em></span>
+        <span>Quizzes &amp; <em>flashcards</em></span>
+        <span>Export to <em>Markdown</em></span>
+        <span>Export to <em>PDF</em></span>
+        <span>Works <em>offline</em></span>
+        <span><em>Any</em> certification</span>
+      </div>
+    </section>
+
+    <!-- ── Bento Features ────────────────────────────────────────────── -->
+    <section class="section container" id="features">
+      <div class="reveal">
+        <span class="section-tag">What it does</span>
+        <h2 class="section-title">A tutor that remembers the whole class.</h2>
+        <p class="section-lead">
+          Six things ASIDE is good at. Each one is one click in the app once a
+          session is rolling.
+        </p>
+      </div>
+
+      <div class="bento">
+        <!-- LARGE feature -->
+        <article class="tile span-4 tall reveal feature-flag" tabindex="0">
+          <span class="tile-eyebrow">Generate</span>
+          <h3 class="tile-title">Summary, quiz, or flashcards from any topic.</h3>
+          <p class="tile-body">
+            Click any doc in your library, hit Generate, and Claude produces a
+            structured study guide grounded in what was actually said in class.
+            Export the result as Markdown or PDF.
+          </p>
+          <div class="mock" aria-hidden="true">
+            <div class="mock-card">
+              <span class="badge">Summary</span>
+              <span>Georgia electrical — Class I scope</span>
+            </div>
+            <div class="mock-card">
+              <span class="badge">Quiz</span>
+              <span>5 multiple-choice + answers</span>
+            </div>
+            <div class="mock-card">
+              <span class="badge">Cards</span>
+              <span>10 flashcards · front / back</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Stat tile -->
+        <article class="tile span-2 reveal" tabindex="0">
+          <span class="tile-eyebrow">Speed</span>
+          <h3 class="tile-title">Real-time transcription. No lag.</h3>
+          <p class="tile-body">
+            Words appear as they're spoken. If one transcription service ever
+            stutters, ASIDE switches to a backup automatically — you'll never
+            see the cursor stop.
+          </p>
+          <div class="mock" aria-hidden="true">
+            <span class="line">┌──────────────</span>
+            <span class="line hi">▎ Live transcript · 142ms</span>
+            <span class="line">▎ Backup transcriber · standby</span>
+            <span class="line">└──────────────</span>
+          </div>
+        </article>
+
+        <!-- WIDE tile — offline -->
+        <article class="tile span-2 reveal" tabindex="0">
+          <span class="tile-eyebrow">PWA</span>
+          <h3 class="tile-title">Installable. Works offline.</h3>
+          <p class="tile-body">
+            Add to home screen on iOS or Android. The library and your docs
+            stay available even when wifi drops.
+          </p>
+        </article>
+
+        <!-- SMALL tile -->
+        <article class="tile span-2 reveal" tabindex="0">
+          <span class="tile-eyebrow">Search</span>
+          <h3 class="tile-title">Searchable across every word said.</h3>
+          <p class="tile-body">
+            Every transcript line is indexed the moment it lands. Questions
+            pull from real class context, not made-up answers.
+          </p>
+        </article>
+
+        <!-- WIDE tile -->
+        <article class="tile span-2 reveal" tabindex="0">
+          <span class="tile-eyebrow">Export</span>
+          <h3 class="tile-title">Markdown or PDF — your study guide.</h3>
+          <p class="tile-body">
+            Generated content comes out as clean Markdown or A4 PDF with a real
+            answer key page. Drop into Notion, Obsidian, or print.
+          </p>
+          <div class="mock" aria-hidden="true">
+            <span class="line hi">⤓ georgia-electrical-quiz.pdf</span>
+            <span class="line amber">⤓ plumbing-flashcards.md</span>
+          </div>
+        </article>
+
+        <!-- Cross-browser tile -->
+        <article class="tile span-4 reveal" tabindex="0">
+          <span class="tile-eyebrow">Tier 1 cross-browser</span>
+          <h3 class="tile-title">Chrome, Safari (desktop + iOS), Firefox.</h3>
+          <p class="tile-body">
+            102 Playwright tests across three engines. AudioContext resumes
+            inside the user gesture. MediaRecorder codec is feature-detected.
+            WebSocket reconnects on iOS visibilitychange. The hard stuff is
+            already handled.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── How it works ──────────────────────────────────────────────── -->
+    <section class="section container" id="how">
+      <div class="reveal">
+        <span class="section-tag">How it works</span>
+        <h2 class="section-title">From mic to study guide in three steps.</h2>
+      </div>
+
+      <div class="steps reveal">
+        <article class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="2" width="6" height="13" rx="3"></rect>
+              <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+            </svg>
+          </span>
+          <h3>Open the mic.</h3>
+          <p>
+            Click record. ASIDE streams audio over WebSocket to your chosen STT
+            provider and renders the transcript in real time.
+          </p>
+        </article>
+
+        <article class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+            </svg>
+          </span>
+          <h3>Ask anything.</h3>
+          <p>
+            Type or speak a question. ASIDE finds the part of the lecture it
+            came from and answers — out loud, with the source on hand.
+          </p>
+        </article>
+
+        <article class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </span>
+          <h3>Export and revise.</h3>
+          <p>
+            Generate a summary, quiz, or flashcards from any topic and export
+            it. Your study guide is portable, your corpus stays yours.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Product preview ───────────────────────────────────────────── -->
+    <section class="section container">
+      <div class="reveal">
+        <span class="section-tag">Lives in your browser</span>
+        <h2 class="section-title">No install. Nothing to set up. Just open it.</h2>
+        <p class="section-lead">
+          ASIDE runs in any modern browser. Install it as a desktop or mobile
+          app in one click when you're ready, but it works just as well from a
+          plain tab — and remembers everything between sessions.
+        </p>
+      </div>
+
+      <div class="preview reveal">
+        <div class="preview-mock">
+          <div class="preview-bar">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="url">aside.app · live session</span>
+          </div>
+          <div class="preview-body">
+            <aside class="preview-rail" aria-hidden="true">
+              <div class="row live">● Recording · 12:48</div>
+              <div class="row">Library · 210 docs</div>
+              <div class="row">Detected: electrical</div>
+              <div class="row">Speakers · 1</div>
+              <div class="row">Cost · $0.014</div>
+            </aside>
+            <div class="preview-stage" aria-hidden="true">
+              <h4>Live transcript</h4>
+              <p class="transcript">
+                <span class="turn" data-speaker="instructor">
+                  So a Georgia Class I electrical contractor is restricted to
+                  single-phase installs not exceeding 200 amperes at the
+                  service drop.
+                </span>
+                <span class="turn you" data-speaker="you">
+                  what's the limit again?
+                </span>
+                <span class="turn" data-speaker="ASIDE">
+                  Class I caps at 200 amps single-phase, service drop or
+                  lateral. Class II is unrestricted.
+                  <span class="cursor-blink"></span>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ───────────────────────────────────────────────────────── -->
+    <section class="section container" id="faq">
+      <div class="reveal">
+        <span class="section-tag">Questions</span>
+        <h2 class="section-title">The honest answers.</h2>
+      </div>
+
+      <div class="faq reveal">
+        <details>
+          <summary>Where does the audio go?</summary>
+          <p>
+            Audio streams to a speech-to-text service for the few seconds it
+            takes to turn into text — then the audio itself is discarded.
+            Only the transcript stays, in your account's private database.
+            The AI that answers your questions sees only the question text
+            plus the small relevant excerpt of the transcript — never the
+            audio. Full details on the
+            <a href="/landing/subprocessors.html">sub-processors page</a>.
+          </p>
+        </details>
+        <details>
+          <summary>Does it really work offline?</summary>
+          <p>
+            Reading does. Once you've loaded the library, every cached doc is
+            available with the network off. Generating new summaries, quizzes,
+            or flashcards needs a connection because that's what calls the AI.
+          </p>
+        </details>
+        <details>
+          <summary>Can I install it on my phone?</summary>
+          <p>
+            Yes. ASIDE is a PWA. On iOS Safari: Share → Add to Home Screen. On
+            Android Chrome: the install prompt appears automatically once
+            you've loaded the page. The installed app gets its own icon, runs
+            in a standalone window, and respects the system theme.
+          </p>
+        </details>
+        <details>
+          <summary>What AI is answering my questions?</summary>
+          <p>
+            Anthropic's Claude — a top-tier large language model. Different
+            sizes of the model are used for different tasks (faster ones for
+            quizzes and summaries, the stronger one for chat answers). Full
+            details on the
+            <a href="/landing/subprocessors.html">sub-processors page</a>.
+          </p>
+        </details>
+        <details>
+          <summary>Who is this for?</summary>
+          <p>
+            Anyone in a class or licensing prep who has felt that "I missed
+            the last sentence and can't ask again" feeling — coding bootcamp
+            students, real-estate and contractor exam candidates, HVAC and
+            plumbing trade students, nursing review attendees, CPA and bar
+            prep, anyone studying for a certification. Bring your own
+            materials and ASIDE shapes itself to your subject.
+          </p>
+        </details>
+        <details>
+          <summary>How is this different from just using ChatGPT?</summary>
+          <p>
+            ASIDE is grounded in the actual transcript of your class — not the
+            internet. Questions retrieve real lines your instructor said, so
+            answers reference what was actually taught, not what a foundation
+            model thinks the topic is "usually" about.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ── CTA strip ─────────────────────────────────────────────────── -->
+    <section class="container">
+      <div class="cta-strip reveal">
+        <h2 class="h-hero">
+          Open ASIDE<span class="dash"></span>
+        </h2>
+        <p class="sub" style="margin-bottom: 30px;">
+          One page. Browser only. Drop in your Anthropic key, click record,
+          ask anything.
+        </p>
+        <a href="/app" class="btn btn-primary">
+          Launch the app <span class="arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Footer ────────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a href="/" class="brand">
+              <span class="mark" aria-hidden="true"></span>
+              ASIDE
+              <span class="ver">v3</span>
+            </a>
+            <p style="margin-top: 14px; max-width: 36ch;">
+              Live class &amp; certification-prep assistant. Capture, transcribe,
+              ask, study, export — for any subject you're certifying in.
+            </p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="/landing/pricing.html">Pricing</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="/app">Launch app</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Project</h4>
+            <ul>
+              <li><a href="/landing/manifesto.html">Manifesto</a></li>
+              <li>
+                <a
+                  href="https://github.com/singlefatherhustle/devlistenv3"
+                  rel="noopener"
+                  >GitHub</a
+                >
+              </li>
+              <li><a href="/landing/privacy.html">Privacy</a></li>
+              <li><a href="/landing/terms.html">Terms</a></li>
+              <li><a href="/landing/subprocessors.html">Sub-processors</a></li>
+              <li><a href="/landing/dpa.html">DPA (B2B)</a></li>
+              <li><a href="/landing/accessibility.html">Accessibility</a></li>
+              <li><a href="/landing/dmca.html">DMCA</a></li>
+              <li><a href="/landing/report.html">Report abuse</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>For studying</h4>
+            <ul>
+              <li>Coding bootcamps</li>
+              <li>Real estate licensing</li>
+              <li>Contractor &amp; trade exams</li>
+              <li>Healthcare &amp; finance certifications</li>
+              <li>Any subject you upload</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 — built by Beat Dump Inc.</span>
+          <span>Franklin, TN</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/landing/landing.js" defer></script>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>

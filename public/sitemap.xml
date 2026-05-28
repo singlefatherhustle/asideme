@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://aside.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://aside.app/landing/pricing.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aside.app/landing/manifesto.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://aside.app/landing/privacy.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://aside.app/landing/terms.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://aside.app/landing/subprocessors.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://aside.app/landing/dpa.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://aside.app/landing/accessibility.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://aside.app/landing/dmca.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://aside.app/landing/report.html</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://aside.app/landing/status.html</loc><changefreq>daily</changefreq><priority>0.5</priority></url>
+</urlset>

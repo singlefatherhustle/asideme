@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>ASIDE — DMCA Takedown</title>
+    <meta name="description" content="How to submit a DMCA copyright takedown notice for content on ASIDE. Designated agent address and §512(c)(3) formal procedure." />
+    <meta name="theme-color" content="#0B0B0E" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal { max-width: 780px; margin: 0 auto; font-size: 16px; line-height: 1.7; }
+      .legal h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 2.6vw, 28px); margin: 40px 0 12px; letter-spacing: -0.01em; }
+      .legal h3 { font-family: var(--font-sans); font-weight: 600; font-size: 16px; margin: 20px 0 8px; color: var(--text); }
+      .legal p { color: var(--text-dim); margin: 0 0 12px; }
+      .legal ul, .legal ol { color: var(--text-dim); padding-left: 22px; margin: 10px 0 16px; }
+      .legal li { margin-bottom: 6px; }
+      .legal strong { color: var(--text); font-weight: 500; }
+      .legal .updated { font-family: var(--font-mono); font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+      .legal .agent-box { background: rgba(125, 219, 255, 0.04); border: 0.5px solid rgba(125, 219, 255, 0.2); border-radius: 10px; padding: 18px 20px; margin: 24px 0; font-family: var(--font-mono); font-size: 13px; }
+      .legal .agent-box strong { color: var(--cyan); }
+      .legal code { background: var(--surface, rgba(255,255,255,0.04)); padding: 1px 6px; border-radius: 4px; font-size: 0.9em; }
+      .dmca-form { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: 12px; padding: 24px 22px; margin: 32px 0; }
+      .dmca-form .row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+      .dmca-form label { font-size: 13px; color: var(--text-dim); }
+      .dmca-form label strong { color: var(--text); }
+      .dmca-form input, .dmca-form textarea {
+        background: var(--surface, rgba(255,255,255,0.04));
+        border: 0.5px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 14px;
+        color: var(--text);
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .dmca-form textarea { min-height: 90px; resize: vertical; font-family: var(--font-sans); }
+      .dmca-form input:focus, .dmca-form textarea:focus { outline: 1px solid var(--cyan); outline-offset: 1px; }
+      .dmca-form .check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; }
+      .dmca-form .check input { width: auto; margin-top: 4px; }
+      .dmca-form .submit-row { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 8px; }
+      .dmca-form .status { margin-top: 14px; padding: 12px 14px; border-radius: 8px; font-size: 14px; display: none; }
+      .dmca-form .status.is-success { display: block; background: rgba(57, 229, 168, 0.06); border: 0.5px solid rgba(57, 229, 168, 0.3); color: var(--green); }
+      .dmca-form .status.is-error { display: block; background: rgba(255, 60, 75, 0.06); border: 0.5px solid rgba(255, 60, 75, 0.3); color: var(--red); }
+    </style>
+    <script>try { const t = localStorage.getItem("aside-theme") || "dark"; if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (_) {}</script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-inner">
+        <a href="/" class="brand"><span class="mark" aria-hidden="true"></span>ASIDE<span class="ver">v3</span></a>
+        <div class="nav-links">
+          <a href="/#features">Features</a>
+          <a href="/landing/pricing.html">Pricing</a>
+          <a href="/landing/manifesto.html">Manifesto</a>
+          <a href="/app" class="cta-link">Launch app</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero container" style="padding-bottom: 30px;">
+      <h1 class="h-hero" style="font-size: clamp(40px, 6vw, 72px);">DMCA<span class="dash"></span><br /><em>takedown.</em></h1>
+      <p class="sub updated" style="margin-top:14px">Effective: May 2026</p>
+    </header>
+
+    <main class="section container">
+      <article class="legal">
+        <p>ASIDE respects the intellectual property of others and asks our users to do the same. If you believe that material on ASIDE infringes your copyright, you may submit a notice of infringement under the Digital Millennium Copyright Act (17 U.S.C. §512).</p>
+
+        <h2>Designated agent</h2>
+
+        <div class="agent-box">
+          <strong>DMCA Designated Agent</strong><br />
+          Beat Dump Inc.<br />
+          Attn: DMCA Agent<br />
+          Franklin, TN, USA<br />
+          <br />
+          <strong>Email:</strong> <a href="mailto:dmca@aside.app" style="color:var(--cyan)">dmca@aside.app</a><br />
+          <strong>Form:</strong> Use the takedown form below<br />
+          <br />
+          (Designated agent for service of notification of claimed infringement under 17 U.S.C. §512(c)(2).)
+        </div>
+
+        <h2>What your notice must include</h2>
+
+        <p>Per <strong>17 U.S.C. §512(c)(3)(A)</strong>, a complying notification of claimed infringement must include all of the following:</p>
+
+        <ol>
+          <li><strong>Identification of the copyrighted work</strong> claimed to have been infringed. If multiple works on a single ASIDE page are covered, a representative list of the works.</li>
+          <li><strong>Identification of the material that is claimed to be infringing</strong> on ASIDE, with information reasonably sufficient to let us locate it — at minimum the URL or path of the page/document on ASIDE.</li>
+          <li><strong>Your contact information</strong> — full legal name, mailing address, telephone number, and email.</li>
+          <li><strong>A statement that you have a good-faith belief</strong> that the use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.</li>
+          <li><strong>A statement that the information in the notification is accurate</strong>, and under penalty of perjury, that you are the copyright owner or authorized to act on behalf of the copyright owner.</li>
+          <li><strong>A physical or electronic signature</strong> of the copyright owner or a person authorized to act on their behalf. Typing your full legal name in the signature field of the form below counts as an electronic signature.</li>
+        </ol>
+
+        <p>Incomplete notices may be rejected. A knowingly false claim of infringement may result in liability for damages under §512(f).</p>
+
+        <h2>Submit a takedown notice</h2>
+
+        <form id="dmcaForm" class="dmca-form" novalidate>
+          <div class="row">
+            <label for="claimantName"><strong>1. Your full legal name</strong></label>
+            <input id="claimantName" name="claimantName" type="text" required autocomplete="name" />
+          </div>
+          <div class="row">
+            <label for="claimantEmail"><strong>2. Your email</strong> (we'll send the confirmation here)</label>
+            <input id="claimantEmail" name="claimantEmail" type="email" required autocomplete="email" />
+          </div>
+          <div class="row">
+            <label for="claimantAddress"><strong>3. Your mailing address</strong></label>
+            <input id="claimantAddress" name="claimantAddress" type="text" required autocomplete="street-address" />
+          </div>
+          <div class="row">
+            <label for="claimantPhone">4. Phone (optional)</label>
+            <input id="claimantPhone" name="claimantPhone" type="tel" autocomplete="tel" />
+          </div>
+          <div class="row">
+            <label for="copyrightedWork"><strong>5. Description of the copyrighted work</strong> — title, registration number, URL of the original, etc.</label>
+            <textarea id="copyrightedWork" name="copyrightedWork" required></textarea>
+          </div>
+          <div class="row">
+            <label for="infringingLocation"><strong>6. Location on ASIDE</strong> — URL or document path of the infringing material</label>
+            <textarea id="infringingLocation" name="infringingLocation" required></textarea>
+          </div>
+          <div class="check">
+            <input id="goodFaithStatement" name="goodFaithStatement" type="checkbox" required />
+            <label for="goodFaithStatement">7. I have a <strong>good-faith belief</strong> that the use of the material described above is not authorized by the copyright owner, its agent, or the law.</label>
+          </div>
+          <div class="check">
+            <input id="accuracyStatement" name="accuracyStatement" type="checkbox" required />
+            <label for="accuracyStatement">8. The information in this notification is accurate and, <strong>under penalty of perjury</strong>, I am the copyright owner or authorized to act on its behalf.</label>
+          </div>
+          <div class="row">
+            <label for="signature"><strong>9. Electronic signature</strong> — type your full legal name to sign</label>
+            <input id="signature" name="signature" type="text" required />
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary">Submit DMCA notice</button>
+          </div>
+          <div id="dmcaStatus" class="status" role="status" aria-live="polite"></div>
+        </form>
+
+        <h2>Counter-notification</h2>
+
+        <p>If material you posted on ASIDE was removed because of a DMCA notice and you believe the removal was in error or you have authorization to use the material, you may send a <strong>counter-notification</strong> to <a href="mailto:dmca@aside.app" style="color:var(--cyan)">dmca@aside.app</a>. Per §512(g)(3), it must include:</p>
+
+        <ul>
+          <li>Your physical or electronic signature</li>
+          <li>Identification of the material that was removed and where it appeared before removal</li>
+          <li>A statement under penalty of perjury that you have a good-faith belief the material was removed as a result of mistake or misidentification</li>
+          <li>Your name, address, and telephone number, plus a statement consenting to the jurisdiction of the federal district court for the district in which your address is located (or, if outside the U.S., the district where ASIDE is located)</li>
+          <li>A statement that you will accept service of process from the person who provided the original notification or their agent</li>
+        </ul>
+
+        <p>If we receive a valid counter-notification, we will forward it to the original complainant and may restore the removed material in 10–14 business days unless the complainant files a court action.</p>
+
+        <h2>Repeat infringer policy</h2>
+
+        <p>It is ASIDE's policy to terminate, in appropriate circumstances, the accounts of users who are repeat infringers. Multiple validated DMCA notices against the same account are grounds for termination at our discretion.</p>
+
+        <h2>What happens after you submit</h2>
+
+        <ol>
+          <li>You receive a confirmation email with a tracking ID within 1 hour.</li>
+          <li>Our team reviews the notice within 24 hours.</li>
+          <li>If the notice is facially valid, we remove or disable access to the material, notify the user who posted it, and let you know via email.</li>
+          <li>If the user submits a valid counter-notification, we forward it to you.</li>
+          <li>You may need to file a court action within 10 business days to keep the material disabled.</li>
+        </ol>
+
+        <h2>Misuse</h2>
+
+        <p>Knowingly submitting a false or fraudulent DMCA notice may expose you to liability under <strong>§512(f)</strong>. The same applies to false counter-notifications. Don't use this process to harass other users or to take down content you don't actually have rights over.</p>
+
+        <h2>Non-copyright complaints</h2>
+
+        <p>For non-copyright complaints (harassment, illegal content, recording without consent, terms-of-service violations) use the in-app <strong>Report</strong> button on the specific content, or email <a href="mailto:abuse@aside.app" style="color:var(--cyan)">abuse@aside.app</a>. See also our <a href="/landing/report.html" style="color:var(--cyan)">public report form</a>.</p>
+
+        <h2>Contact</h2>
+
+        <p>DMCA-specific: <a href="mailto:dmca@aside.app" style="color:var(--cyan)">dmca@aside.app</a>. General compliance: <a href="mailto:compliance@aside.app" style="color:var(--cyan)">compliance@aside.app</a>.</p>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <span>© 2026 — Beat Dump Inc.</span>
+          <span>
+            <a href="/landing/privacy.html" style="color:inherit">Privacy</a> ·
+            <a href="/landing/terms.html" style="color:inherit">Terms</a> ·
+            <a href="/landing/subprocessors.html" style="color:inherit">Sub-processors</a> ·
+            <a href="/landing/dpa.html" style="color:inherit">DPA</a> ·
+            <a href="/landing/accessibility.html" style="color:inherit">Accessibility</a> ·
+            <a href="/landing/dmca.html" style="color:inherit">DMCA</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        "use strict";
+        const form = document.getElementById("dmcaForm");
+        const status = document.getElementById("dmcaStatus");
+        if (!form) return;
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          status.className = "status";
+          status.textContent = "Submitting…";
+          status.className = "status is-success";
+          status.textContent = "Submitting…";
+          const data = {};
+          for (const f of [
+            "claimantName",
+            "claimantEmail",
+            "claimantAddress",
+            "claimantPhone",
+            "copyrightedWork",
+            "infringingLocation",
+            "signature",
+          ]) {
+            data[f] = document.getElementById(f).value.trim();
+          }
+          data.goodFaithStatement = document.getElementById(
+            "goodFaithStatement",
+          ).checked
+            ? "true"
+            : "";
+          data.accuracyStatement = document.getElementById(
+            "accuracyStatement",
+          ).checked
+            ? "true"
+            : "";
+          // Local validation — required fields + email + checkboxes
+          if (!data.claimantName || !data.claimantEmail || !data.claimantAddress
+              || !data.copyrightedWork || !data.infringingLocation
+              || !data.signature) {
+            status.className = "status is-error";
+            status.textContent = "Please fill in all required fields.";
+            return;
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.claimantEmail)) {
+            status.className = "status is-error";
+            status.textContent = "Please enter a valid email address.";
+            return;
+          }
+          if (data.goodFaithStatement !== "true" || data.accuracyStatement !== "true") {
+            status.className = "status is-error";
+            status.textContent =
+              "You must affirm both the good-faith and accuracy statements.";
+            return;
+          }
+          try {
+            const r = await fetch("/api/dmca-takedown", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+            const d = await r.json();
+            if (!r.ok) {
+              throw new Error(d.error || "Submission failed");
+            }
+            status.className = "status is-success";
+            status.textContent =
+              "✓ DMCA notice received. Reference ID: " +
+              d.id +
+              ". You will receive a confirmation at " +
+              data.claimantEmail +
+              ".";
+            form.reset();
+          } catch (err) {
+            status.className = "status is-error";
+            status.textContent = "Submission failed: " + (err.message || err);
+          }
+        });
+      })();
+    </script>
+    <script src="/landing/cookie-notice.js" defer></script>
+  </body>
+</html>
