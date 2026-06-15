@@ -3725,6 +3725,49 @@
           </div>
 
           <section class="settings-section">
+            <h3 class="settings-h3">AI provider</h3>
+            <p class="settings-desc">
+              ASIDE runs on a <strong>free built-in AI</strong> by default. Add
+              your own API key to run on your own provider with a higher daily
+              limit — your key is encrypted at rest, never shared, and never
+              leaves the server.
+            </p>
+            <p
+              class="settings-desc"
+              id="byokStatus"
+              aria-live="polite"
+              style="font-size: 12px; color: var(--green)"
+            ></p>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <select class="settings-input" id="byokProvider" aria-label="AI provider">
+                <option value="">Free built-in AI (no key needed)</option>
+              </select>
+              <input
+                class="settings-input"
+                id="byokApiKey"
+                type="password"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Paste your API key"
+                style="display: none"
+              />
+              <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                <button class="settings-btn" type="button" id="byokSaveBtn" style="display: none">
+                  Save key
+                </button>
+                <button class="settings-btn" type="button" id="byokClearBtn" style="display: none">
+                  Switch back to free AI
+                </button>
+              </div>
+            </div>
+            <p
+              class="settings-desc"
+              id="byokHint"
+              style="font-size: 11px; margin-top: 8px; color: var(--dim)"
+            ></p>
+          </section>
+
+          <section class="settings-section">
             <h3 class="settings-h3">Your data</h3>
             <p class="settings-desc">
               Download everything ASIDE has stored on your account — every
@@ -4883,6 +4926,114 @@
         // and wires the three action buttons. Idempotent — safe to call
         // multiple times; we deduplicate listeners with a one-time flag.
         let _settingsWired = false;
+        // ── BYOK / AI-provider settings ──────────────────────────────────
+        function renderByokControls() {
+          const sel = document.getElementById("byokProvider");
+          const keyInput = document.getElementById("byokApiKey");
+          const saveBtn = document.getElementById("byokSaveBtn");
+          const clearBtn = document.getElementById("byokClearBtn");
+          const hint = document.getElementById("byokHint");
+          if (!sel) return;
+          const chosen = sel.value;
+          const isFree = !chosen;
+          if (keyInput) keyInput.style.display = isFree ? "none" : "block";
+          if (saveBtn) saveBtn.style.display = isFree ? "none" : "inline-flex";
+          if (clearBtn)
+            clearBtn.style.display = sel.dataset.hasKey === "1" ? "inline-flex" : "none";
+          const meta = (window._byokProviders || []).find((p) => p.key === chosen);
+          if (hint)
+            hint.textContent = isFree
+              ? "Using the free built-in AI. No key required."
+              : meta
+                ? `Paste your ${meta.label} key (starts ${meta.keyHint}).`
+                : "";
+        }
+
+        async function loadByokSettings() {
+          const sel = document.getElementById("byokProvider");
+          const statusEl = document.getElementById("byokStatus");
+          if (!sel) return;
+          try {
+            const r = await fetch(`${BASE}/api/settings`, { credentials: "same-origin" });
+            if (!r.ok) return;
+            const d = await r.json();
+            window._byokProviders = d.providers || [];
+            sel.innerHTML = '<option value="">Free built-in AI (no key needed)</option>';
+            for (const p of window._byokProviders) {
+              const opt = document.createElement("option");
+              opt.value = p.key;
+              opt.textContent = p.label + (p.free ? " — free key available" : "");
+              sel.appendChild(opt);
+            }
+            sel.value = d.byokProvider || "";
+            sel.dataset.hasKey = d.hasByokKey ? "1" : "0";
+            if (statusEl) {
+              const meta = window._byokProviders.find((p) => p.key === d.byokProvider);
+              statusEl.textContent = d.hasByokKey
+                ? `✓ Running on your own ${meta ? meta.label : d.byokProvider} key`
+                : `Running on the free built-in AI (${d.freeProvider}).`;
+            }
+            renderByokControls();
+          } catch (e) {
+            console.warn("Could not load BYOK settings:", e && e.message);
+          }
+        }
+
+        async function saveByok() {
+          const sel = document.getElementById("byokProvider");
+          const keyInput = document.getElementById("byokApiKey");
+          const saveBtn = document.getElementById("byokSaveBtn");
+          const provider = sel.value;
+          const apiKey = keyInput.value.trim();
+          if (!provider || !apiKey) {
+            showToast("Pick a provider and paste a key");
+            return;
+          }
+          saveBtn.disabled = true;
+          const orig = saveBtn.textContent;
+          saveBtn.textContent = "Validating…";
+          try {
+            const r = await fetch(`${BASE}/api/settings`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ provider, apiKey }),
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.message || d.error || "save_failed");
+            keyInput.value = "";
+            showToast("✅ Key saved — you're on your own provider now");
+            await loadByokSettings();
+          } catch (err) {
+            showToast("Couldn't save key: " + (err.message || err));
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = orig;
+          }
+        }
+
+        async function clearByok() {
+          const keyInput = document.getElementById("byokApiKey");
+          const clearBtn = document.getElementById("byokClearBtn");
+          clearBtn.disabled = true;
+          try {
+            const r = await fetch(`${BASE}/api/settings`, {
+              method: "POST",
+              credentials: "same-origin",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ provider: null }),
+            });
+            if (!r.ok) throw new Error("clear_failed");
+            if (keyInput) keyInput.value = "";
+            showToast("Switched back to the free built-in AI");
+            await loadByokSettings();
+          } catch (err) {
+            showToast("Couldn't clear key: " + (err.message || err));
+          } finally {
+            clearBtn.disabled = false;
+          }
+        }
+
         async function openSettingsModal() {
           const modal = document.getElementById("settingsModal");
           const emailEl = document.getElementById("settingsEmail");
@@ -4911,8 +5062,18 @@
             emailEl.textContent = "Could not load account info";
           }
 
+          // Refresh AI-provider (BYOK) state every time the modal opens.
+          await loadByokSettings();
+
           if (_settingsWired) return;
           _settingsWired = true;
+
+          // BYOK wiring (once).
+          document
+            .getElementById("byokProvider")
+            .addEventListener("change", renderByokControls);
+          document.getElementById("byokSaveBtn").addEventListener("click", saveByok);
+          document.getElementById("byokClearBtn").addEventListener("click", clearByok);
 
           // Export: POST → JSON blob → click invisible anchor to download.
           // We can't window.open a POST URL; fetch + blob is the workaround.

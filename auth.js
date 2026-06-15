@@ -20,10 +20,20 @@ const SESSION_SECRET =
     : "dev-only-insecure-secret-do-not-use-in-prod-please");
 
 const TRIAL_HOURS = parseInt(process.env.TRIAL_HOURS || "48", 10);
+// Daily generation caps. BYOK users (running on their own key/cost) get the
+// higher cap; free-tier users on the owner's shared free-provider key get the
+// lower one so the shared key can't be drained.
 const DAILY_GENERATION_CAP = parseInt(
   process.env.DAILY_GENERATION_CAP || "30",
   10,
 );
+const FREE_DAILY_GENERATION_CAP = parseInt(
+  process.env.FREE_DAILY_GENERATION_CAP || "15",
+  10,
+);
+// When true, any logged-in (and, in prod, verified) account may generate —
+// the trial/subscription paywall is bypassed. Reversible via env, Stripe stays dormant.
+const FREE_FOR_ALL = process.env.FREE_FOR_ALL === "true";
 const COOKIE_NAME = "aside_session";
 const COOKIE_MAX_AGE_DAYS = 30;
 
@@ -63,6 +73,12 @@ const userMigrations = [
   // Used by /api/signout for true revocation (otherwise stolen cookies
   // remain valid until cookie maxAge expires, regardless of clearCookie).
   "ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 1",
+  // BYOK: user's chosen LLM provider + their API key encrypted at rest
+  // (AES-256-GCM ciphertext, IV, and auth tag — see crypto-util.js).
+  "ALTER TABLE users ADD COLUMN byok_provider TEXT",
+  "ALTER TABLE users ADD COLUMN byok_api_key_enc TEXT",
+  "ALTER TABLE users ADD COLUMN byok_key_iv TEXT",
+  "ALTER TABLE users ADD COLUMN byok_key_tag TEXT",
 ];
 for (const sql of userMigrations) {
   try { db.prepare(sql).run(); } catch (_) { /* column exists */ }
@@ -207,6 +223,10 @@ export function userHasActiveAccess(user) {
   if (REQUIRE_VERIFICATION && !user.email_verified_at) {
     return { ok: false, reason: "email_unverified" };
   }
+  // Paywall disabled: any logged-in (and, in prod, verified) account may generate.
+  // Daily cap + rate limiters still apply via requireActiveAccess. Stripe/trial
+  // logic below stays intact and dormant — flip FREE_FOR_ALL=false to restore it.
+  if (FREE_FOR_ALL) return { ok: true, mode: "free" };
   // Paid subscriber: check subscription status + period_end.
   if (user.plan === "paid" || user.plan === "team") {
     const subActive =
@@ -269,24 +289,46 @@ function rolloverDailyIfNeeded(user) {
   }
 }
 
-export function consumeDailyCall(user) {
+// A user with a saved BYOK key runs on their own provider/cost → higher cap.
+// Everyone else runs on the owner's shared free-provider key → lower cap.
+export function userHasByok(user) {
+  return !!(user && user.byok_provider && user.byok_api_key_enc);
+}
+
+export function effectiveDailyCap(user) {
+  return userHasByok(user) ? DAILY_GENERATION_CAP : FREE_DAILY_GENERATION_CAP;
+}
+
+export function consumeDailyCall(user, cap = DAILY_GENERATION_CAP) {
   rolloverDailyIfNeeded(user);
-  if (user.daily_calls >= DAILY_GENERATION_CAP) {
-    return {
-      ok: false,
-      reason: "daily_cap",
-      remaining: 0,
-      cap: DAILY_GENERATION_CAP,
-    };
+  if (user.daily_calls >= cap) {
+    return { ok: false, reason: "daily_cap", remaining: 0, cap };
   }
   db.prepare(
     "UPDATE users SET daily_calls = daily_calls + 1 WHERE id = ?",
   ).run(user.id);
   return {
     ok: true,
-    remaining: DAILY_GENERATION_CAP - (user.daily_calls + 1),
-    cap: DAILY_GENERATION_CAP,
+    remaining: cap - (user.daily_calls + 1),
+    cap,
   };
+}
+
+// ── BYOK key storage (ciphertext only — never plaintext) ──────────────────────
+export function setUserByok(userId, provider, { enc, iv, tag }) {
+  db.prepare(
+    `UPDATE users
+       SET byok_provider = ?, byok_api_key_enc = ?, byok_key_iv = ?, byok_key_tag = ?
+     WHERE id = ?`,
+  ).run(provider, enc, iv, tag, userId);
+}
+
+export function clearUserByok(userId) {
+  db.prepare(
+    `UPDATE users
+       SET byok_provider = NULL, byok_api_key_enc = NULL, byok_key_iv = NULL, byok_key_tag = NULL
+     WHERE id = ?`,
+  ).run(userId);
 }
 
 // ── Cookie helpers ────────────────────────────────────────────────────────────
@@ -378,13 +420,23 @@ export function requireActiveAccess(req, res, next) {
     }
     return res.status(401).json({ error: "no_access" });
   }
-  const call = consumeDailyCall(user);
+  const hasByok = userHasByok(user);
+  const call = consumeDailyCall(user, effectiveDailyCap(user));
   if (!call.ok) {
-    return res.status(429).json({
-      error: "daily_cap_reached",
-      message: `You have used today's quota of ${call.cap} generations. Resets in 24 hours.`,
-      cap: call.cap,
-    });
+    return res.status(429).json(
+      hasByok
+        ? {
+            error: "daily_cap_reached",
+            message: `You have used today's quota of ${call.cap} generations. Resets in 24 hours.`,
+            cap: call.cap,
+          }
+        : {
+            error: "free_cap_reached",
+            message: `You've used today's ${call.cap} free messages. Add your own free API key in Settings for a higher daily limit.`,
+            cap: call.cap,
+            action: "add_your_own_key",
+          },
+    );
   }
   req.user = user;
   req.accessMode = access.mode;
@@ -402,6 +454,8 @@ export function publicUser(user) {
     (user.plan === "paid" || user.plan === "team") &&
     (user.subscription_status === "active" ||
       user.subscription_status === "trialing");
+  const cap = effectiveDailyCap(user);
+  const hasByok = userHasByok(user);
   return {
     email: user.email,
     signupAt: user.signup_at,
@@ -412,10 +466,16 @@ export function publicUser(user) {
     trialExpiresAt: user.trial_expires_at,
     trialRemainingMs,
     trialRemainingHours: Math.ceil(trialRemainingMs / (60 * 60 * 1000)),
-    trialActive: trialRemainingMs > 0 && !subActive,
-    dailyCap: DAILY_GENERATION_CAP,
+    // Under FREE_FOR_ALL the paywall is off, so access is always active — don't
+    // let the UI nag about an "expired" trial when generation actually works.
+    trialActive: FREE_FOR_ALL ? true : trialRemainingMs > 0 && !subActive,
+    freeForAll: FREE_FOR_ALL,
+    accessActive: FREE_FOR_ALL || subActive || trialRemainingMs > 0,
+    byokProvider: user.byok_provider || null,
+    hasByokKey: hasByok,
+    dailyCap: cap,
     dailyCallsUsed: user.daily_calls,
-    dailyCallsRemaining: Math.max(0, DAILY_GENERATION_CAP - user.daily_calls),
+    dailyCallsRemaining: Math.max(0, cap - user.daily_calls),
   };
 }
 

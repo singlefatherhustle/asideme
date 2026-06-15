@@ -153,7 +153,20 @@ import {
   REQUIRE_VERIFICATION,
   TRIAL_HOURS,
   COOKIE_NAME,
+  setUserByok,
+  clearUserByok,
 } from "./auth.js";
+import {
+  resolveProvider,
+  streamChat,
+  completeText,
+  validateKey,
+  publicProviderList,
+  logLlmProviderStatus,
+  isProvider,
+  PROVIDERS,
+} from "./llm-provider.js";
+import { encryptSecret, isEncryptionConfigured } from "./crypto-util.js";
 import { sendMagicLink } from "./email.js";
 import {
   isStripeConfigured,
@@ -170,13 +183,14 @@ const NOTION_DB_ID = process.env.NOTION_DATABASE_ID;
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const MAX_MSGS = parseInt(process.env.SESSION_MAX_MESSAGES || "60", 10);
 
-if (!ANTHROPIC_KEY) {
-  console.error("❌  ANTHROPIC_API_KEY missing");
-  process.exit(1);
+// Anthropic is no longer required to boot — the default LLM is now the free
+// provider (Gemini) via llm-provider.js, with Anthropic available as BYOK or
+// fallback. We only need *some* LLM provider key; logLlmProviderStatus() warns
+// at startup if none is configured.
+if (ANTHROPIC_KEY) {
+  // Ingest image-vision (PNG→MD) uses Claude specifically; wire it when present.
+  setApiKey(ANTHROPIC_KEY);
 }
-
-// Give the ingest module access to the API key for image vision extraction
-setApiKey(ANTHROPIC_KEY);
 
 const app = express();
 
@@ -896,6 +910,65 @@ app.post("/api/signout", (req, res) => {
   res.json({ ok: true });
 });
 
+// ── BYOK settings: provider + API key ─────────────────────────────────────────
+// Lightweight auth (logged-in user) WITHOUT requireActiveAccess so reading/saving
+// settings never consumes a daily generation call.
+app.get("/api/settings", apiLimiter, (req, res) => {
+  const user = userFromCookie(req);
+  if (!user) return res.status(401).json({ error: "signup_required" });
+  res.json({
+    byokProvider: user.byok_provider || null,
+    hasByokKey: !!(user.byok_provider && user.byok_api_key_enc),
+    providers: publicProviderList(),
+    freeProvider: process.env.DEFAULT_LLM_PROVIDER || "gemini",
+  });
+});
+
+app.post("/api/settings", apiLimiter, async (req, res) => {
+  const user = userFromCookie(req);
+  if (!user) return res.status(401).json({ error: "signup_required" });
+  const { provider, apiKey } = req.body || {};
+
+  // Clear BYOK: an empty/absent provider wipes the stored key.
+  if (!provider) {
+    clearUserByok(user.id);
+    writeAuditLog(user.id, "byok_clear", null, req);
+    return res.json({ ok: true, byokProvider: null, hasByokKey: false });
+  }
+
+  if (!isProvider(provider)) {
+    return res.status(400).json({ error: "invalid_provider" });
+  }
+  if (typeof apiKey !== "string" || apiKey.trim().length < 8 || apiKey.length > 400) {
+    return res.status(400).json({ error: "invalid_key", message: "That API key looks malformed." });
+  }
+  if (!isEncryptionConfigured()) {
+    return res.status(503).json({
+      error: "encryption_unavailable",
+      message: "Server key storage isn't configured (KEY_ENC_SECRET missing).",
+    });
+  }
+
+  // Probe the key with one cheap call before persisting — no dead keys stored.
+  const check = await validateKey(provider, apiKey.trim());
+  if (!check.ok) {
+    return res.status(400).json({
+      error: "key_rejected",
+      message: `That ${PROVIDERS[provider].label} key was rejected: ${check.error}`,
+    });
+  }
+
+  try {
+    setUserByok(user.id, provider, encryptSecret(apiKey.trim()));
+    writeAuditLog(user.id, "byok_set", provider, req);
+  } catch (err) {
+    console.error(`[settings] encrypt/store failed for user ${user.id}: ${err.message}`);
+    return res.status(500).json({ error: "store_failed" });
+  }
+  // Never echo the key back.
+  res.json({ ok: true, byokProvider: provider, hasByokKey: true });
+});
+
 // ── Billing: Stripe Checkout + Customer Portal ───────────────────────────────
 // POST /api/checkout — creates a Stripe Checkout Session for the Pro plan and
 // returns the URL. Frontend redirects user to result.url. On success Stripe
@@ -1335,20 +1408,20 @@ app.post(
 app.post("/api/quiz", quizLimiter, requireActiveAccess, async (req, res) => {
   const { topic, count = 5 } = req.body;
   if (!topic) return res.status(400).json({ error: "topic required" });
-  const result = await generateQuiz(ANTHROPIC_KEY, topic, count);
+  const result = await generateQuiz(resolveProvider(req.user), topic, count);
   res.json(result);
 });
 
 app.post("/api/summary", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "" } = req.body;
-  const result = await summarizeTopic(ANTHROPIC_KEY, unit, topic);
+  const result = await summarizeTopic(resolveProvider(req.user), unit, topic);
   res.json(result);
 });
 
 app.post("/api/summary/download/markdown", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "" } = req.body;
   try {
-    const summary = await summarizeTopic(ANTHROPIC_KEY, unit, topic);
+    const summary = await summarizeTopic(resolveProvider(req.user), unit, topic);
     if (summary.error) {
       return res.status(400).json(summary);
     }
@@ -1365,7 +1438,7 @@ app.post("/api/summary/download/markdown", quizLimiter, requireActiveAccess, asy
 app.post("/api/summary/download/pdf", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "" } = req.body;
   try {
-    const summary = await summarizeTopic(ANTHROPIC_KEY, unit, topic);
+    const summary = await summarizeTopic(resolveProvider(req.user), unit, topic);
     if (summary.error) {
       return res.status(400).json(summary);
     }
@@ -1381,7 +1454,7 @@ app.post("/api/summary/download/pdf", quizLimiter, requireActiveAccess, async (r
 
 app.post("/api/flashcards", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "", count = 10 } = req.body;
-  const result = await generateFlashcards(ANTHROPIC_KEY, unit, topic, count);
+  const result = await generateFlashcards(resolveProvider(req.user), unit, topic, count);
   res.json(result);
 });
 
@@ -1398,7 +1471,7 @@ app.post("/api/quiz/download/markdown", quizLimiter, requireActiveAccess, async 
   const { topic = "", count = 5, title = "" } = req.body;
   if (!topic) return res.status(400).json({ error: "topic required" });
   try {
-    const quiz = await generateQuiz(ANTHROPIC_KEY, topic, count);
+    const quiz = await generateQuiz(resolveProvider(req.user), topic, count);
     if (quiz.error) return res.status(400).json(quiz);
     const md = quizToMarkdown(quiz, { title: title || `${topic} — Quiz` });
     res.setHeader("Content-Type", "text/markdown; charset=utf-8");
@@ -1416,7 +1489,7 @@ app.post("/api/quiz/download/pdf", quizLimiter, requireActiveAccess, async (req,
   const { topic = "", count = 5, title = "" } = req.body;
   if (!topic) return res.status(400).json({ error: "topic required" });
   try {
-    const quiz = await generateQuiz(ANTHROPIC_KEY, topic, count);
+    const quiz = await generateQuiz(resolveProvider(req.user), topic, count);
     if (quiz.error) return res.status(400).json(quiz);
     const pdfStream = await quizToPDF(quiz, { title: title || `${topic} — Quiz` });
     res.setHeader("Content-Type", "application/pdf");
@@ -1434,7 +1507,7 @@ app.post("/api/quiz/download/pdf", quizLimiter, requireActiveAccess, async (req,
 app.post("/api/flashcards/download/markdown", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "", count = 10, title = "" } = req.body;
   try {
-    const cards = await generateFlashcards(ANTHROPIC_KEY, unit, topic, count);
+    const cards = await generateFlashcards(resolveProvider(req.user), unit, topic, count);
     if (cards.error) return res.status(400).json(cards);
     const md = flashcardsToMarkdown(cards, {
       title: title || `${topic || unit} — Flashcards`,
@@ -1453,7 +1526,7 @@ app.post("/api/flashcards/download/markdown", quizLimiter, requireActiveAccess, 
 app.post("/api/flashcards/download/pdf", quizLimiter, requireActiveAccess, async (req, res) => {
   const { unit = "", topic = "", count = 10, title = "" } = req.body;
   try {
-    const cards = await generateFlashcards(ANTHROPIC_KEY, unit, topic, count);
+    const cards = await generateFlashcards(resolveProvider(req.user), unit, topic, count);
     if (cards.error) return res.status(400).json(cards);
     const pdfStream = await flashcardsToPDF(cards, {
       title: title || `${topic || unit} — Flashcards`,
@@ -1471,7 +1544,7 @@ app.post("/api/flashcards/download/pdf", quizLimiter, requireActiveAccess, async
 
 app.post("/api/detect-topic", apiLimiter, async (req, res) => {
   const { transcript } = req.body;
-  const result = await detectCurrentTopic(ANTHROPIC_KEY, transcript);
+  const result = await detectCurrentTopic(resolveProvider(req.user), transcript);
   res.json(result || { unit: null, topic: null, confidence: 0 });
 });
 
@@ -1637,7 +1710,8 @@ app.get(
 );
 
 // ── Auto-title using Claude ───────────────────────────────────────────────────
-async function autoTitle(sessionId, apiKey) {
+async function autoTitle(sessionId, llm) {
+  if (!llm || !llm.apiKey) return;
   const session = getSession(sessionId);
   if (!session) return;
   const messages = getMessages(sessionId);
@@ -1654,64 +1728,52 @@ async function autoTitle(sessionId, apiKey) {
       .slice(0, 4)
       .map((m) => m.content)
       .join("\n");
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 30,
-        temperature: 0,
-        system:
-          "Generate a concise 4-7 word title for this coding session based on the topics discussed. Return ONLY the title, no punctuation.",
-        messages: [{ role: "user", content: sample }],
-      }),
+    const { text } = await completeText({
+      provider: llm.provider,
+      apiKey: llm.apiKey,
+      maxTokens: 30,
+      temperature: 0,
+      system:
+        "Generate a concise 4-7 word title for this coding session based on the topics discussed. Return ONLY the title, no punctuation.",
+      messages: [{ role: "user", content: sample }],
     });
-    const data = await res.json();
-    const title = data.content?.[0]?.text?.trim();
+    const title = text?.trim();
     if (title) updateSessionTitle(sessionId, title);
-  } catch (_) {}
+  } catch (err) {
+    console.warn(`[autoTitle] ${err.message}`);
+  }
 }
 
 // ── Follow-up suggestions — things the student can say/ask next ───────────────
-async function getFollowUps(apiKey, question, answer) {
+async function getFollowUps(llm, question, answer) {
+  if (!llm || !llm.apiKey) return [];
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 150,
-        temperature: 0.7,
-        system: `Given what a teacher just covered and a student's response, suggest 3 things
+    const { text } = await completeText({
+      provider: llm.provider,
+      apiKey: llm.apiKey,
+      maxTokens: 150,
+      temperature: 0.7,
+      system: `Given what a teacher just covered and a student's response, suggest 3 things
 the student could say next — out loud, to the teacher, in class.
 Sound like an engaged, sharp student: smart questions, observations, or connections to prior material.
 Write in first-person spoken voice. Short. Natural. No bullet points.
 Return ONLY a JSON array of 3 strings.
 Example: ["So does that mean we'd use this over a regular for loop?", "Right, because the callback fires after the promise resolves", "What happens if the async function throws inside a try catch?"]`,
-        messages: [
-          {
-            role: "user",
-            content: `Teacher covered: ${question}\nStudent's response: ${answer.slice(0, 300)}`,
-          },
-        ],
-      }),
+      messages: [
+        {
+          role: "user",
+          content: `Teacher covered: ${question}\nStudent's response: ${answer.slice(0, 300)}`,
+        },
+      ],
     });
-    const data = await res.json();
-    const raw = data.content?.[0]?.text
+    const raw = text
       ?.trim()
       .replace(/^```json|^```|```$/gm, "")
       .trim();
     const arr = JSON.parse(raw);
     return Array.isArray(arr) ? arr.slice(0, 3) : [];
-  } catch (_) {
+  } catch (err) {
+    console.warn(`[getFollowUps] ${err.message}`);
     return [];
   }
 }
@@ -1757,9 +1819,21 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
   const send = (event, data) =>
     res.write(`event:${event}\ndata:${JSON.stringify(data)}\n\n`);
 
+  // Resolve the LLM provider for THIS user: their BYOK key → owner free key → none.
+  const llm = resolveProvider(req.user);
+  if (!llm.ok) {
+    send("error", {
+      message:
+        "No AI provider is configured. Add your own API key in Settings to start generating.",
+      action: "add_your_own_key",
+    });
+    res.end();
+    return;
+  }
+
   // 1. Classify
   send("status", { stage: "classifying" });
-  const clf = await classify(ANTHROPIC_KEY, message);
+  const clf = await classify(llm, message);
   if (!clf.answer) {
     send("filtered", { reason: clf.reason, original: message });
     res.end();
@@ -1802,10 +1876,13 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
   // 5. Web search — when question is outside the docs
   let webContext = "";
   let usedWebSearch = false;
-  if (needsWebSearch(cleanQuery, hasRag)) {
+  // Web search uses Anthropic's native web_search tool, so it's only available
+  // when the resolved provider is Anthropic (a BYOK-Anthropic user). Free Gemini
+  // users fall back to RAG + model knowledge.
+  if (needsWebSearch(cleanQuery, hasRag) && llm.provider === "anthropic") {
     try {
       send("status", { stage: "searching" });
-      const webResult = await searchWeb(ANTHROPIC_KEY, cleanQuery);
+      const webResult = await searchWeb(llm.apiKey, cleanQuery);
       if (webResult) {
         webContext = `WEB SEARCH RESULT (real-time):\n${webResult}`;
         usedWebSearch = true;
@@ -1864,54 +1941,21 @@ Never say "I don't know." Never explain things academically. Speak like a studen
   let fullResponse = "";
 
   try {
-    const upstream = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 700,
-        stream: true,
+    const { fullText, usage } = await streamChat(
+      {
+        provider: llm.provider,
+        apiKey: llm.apiKey,
         system: systemPrompt,
         messages: history,
-      }),
-    });
-
-    if (!upstream.ok) {
-      const err = await upstream.json();
-      send("error", { message: err.error?.message || "Anthropic error" });
+        maxTokens: 700,
+      },
+      (token) => send("token", { token }),
+    );
+    fullResponse = fullText;
+    if (!fullResponse) {
+      send("error", { message: "The model returned an empty response. Try again." });
       res.end();
       return;
-    }
-
-    const reader = upstream.body.getReader();
-    const dec = new TextDecoder();
-    let buf = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      const lines = buf.split("\n");
-      buf = lines.pop();
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const data = line.slice(6).trim();
-        if (data === "[DONE]") continue;
-        try {
-          const obj = JSON.parse(data);
-          if (
-            obj.type === "content_block_delta" &&
-            obj.delta?.type === "text_delta"
-          ) {
-            fullResponse += obj.delta.text;
-            send("token", { token: obj.delta.text });
-          }
-        } catch (_) {}
-      }
     }
 
     const ms = Date.now() - t0;
@@ -1924,8 +1968,21 @@ Never say "I don't know." Never explain things academically. Speak like a studen
       updateSessionTags(sessionId, merged);
     } catch (_) {}
 
+    // Token-usage logging — never logs content, only counts + provider/source.
+    log.info(
+      {
+        event: "llm_generate",
+        provider: llm.provider,
+        source: llm.source,
+        inTok: usage.input,
+        outTok: usage.output,
+        ms,
+      },
+      "llm generation",
+    );
+
     // Auto-title after enough context
-    autoTitle(sessionId, ANTHROPIC_KEY).catch(() => {});
+    autoTitle(sessionId, llm).catch(() => {});
 
     // Send done IMMEDIATELY so frontend finalizes the QA block
     send("done", {
@@ -1938,7 +1995,7 @@ Never say "I don't know." Never explain things academically. Speak like a studen
     });
 
     // Follow-ups fire after done — frontend handles them if they arrive
-    getFollowUps(ANTHROPIC_KEY, cleanQuery, fullResponse)
+    getFollowUps(llm, cleanQuery, fullResponse)
       .then((followUps) => {
         if (followUps.length) send("followups", { followUps });
         res.end();
@@ -2131,8 +2188,9 @@ process.on("uncaughtException", (err) => {
 });
 
 server.listen(PORT, async () => {
-  console.log(`\n⚡  DevListen v3.1 → http://localhost:${PORT}\n`);
+  console.log(`\n⚡  ASIDE.1 → http://localhost:${PORT}\n`);
   logProviderStatus();
+  logLlmProviderStatus();
   if (!NOTION_KEY)
     console.log("ℹ  No NOTION_API_KEY — Notion export disabled\n");
 

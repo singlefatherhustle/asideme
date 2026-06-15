@@ -8,64 +8,51 @@
  */
 
 import { db } from './db.js';
+import { completeText, isProvider } from './llm-provider.js';
 
-// ── Call Anthropic + parse JSON response with clear error messages ────────────
-// Anthropic returns a 401 + error body when the API key is invalid. The old
-// code blindly parsed `data.content?.[0]?.text` which is `undefined` on 401,
-// producing the cryptic '"undefined" is not valid JSON' message. This helper
-// detects auth/quota/config errors up front and returns clear text instead.
-async function callClaude(apiKey, body) {
-  if (!apiKey || apiKey.endsWith('_here') || apiKey.length < 30) {
+// ── Call the resolved LLM provider + parse JSON with clear error messages ──────
+// Receives an `llm` context from resolveProvider ({ ok, provider, apiKey, ... }):
+// the user's BYOK provider, or the owner's free default. Maps provider errors to
+// clear user-facing text and parses the model's JSON output (any provider).
+async function callLLM(llm, { system, messages, maxTokens, temperature }) {
+  if (!llm || !llm.ok || !llm.apiKey || !isProvider(llm.provider)) {
     return {
       __error:
-        'Anthropic API key missing or invalid — set ANTHROPIC_API_KEY in .env (current key looks like a placeholder).',
+        'No AI provider available — add your own API key in Settings, or the server needs a free-provider key configured.',
     };
   }
-  let res;
+  let text;
   try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify(body),
+    const out = await completeText({
+      provider: llm.provider,
+      apiKey: llm.apiKey,
+      system,
+      messages,
+      maxTokens,
+      temperature,
     });
+    text = (out.text || '').trim();
   } catch (e) {
-    return { __error: 'Network error reaching Anthropic: ' + e.message };
-  }
-  let data;
-  try {
-    data = await res.json();
-  } catch (_) {
-    return { __error: 'Anthropic returned non-JSON response (HTTP ' + res.status + ')' };
-  }
-  if (!res.ok || data.type === 'error') {
-    const msg = data?.error?.message || data?.message || 'HTTP ' + res.status;
-    if (/authentication|invalid x-api-key|unauthorized/i.test(msg)) {
-      return {
-        __error:
-          'Anthropic API key is invalid (401). Replace the placeholder in .env with a real sk-ant-... key.',
-      };
+    const msg = e.message || String(e);
+    if (/HTTP 401|authentication|unauthorized|invalid.*key/i.test(msg)) {
+      return { __error: 'API key is invalid (401). Check the key in Settings or your .env.' };
     }
-    if (/quota|credit|billing/i.test(msg)) {
-      return { __error: 'Anthropic account out of credit / over quota: ' + msg };
+    if (/quota|credit|billing|HTTP 402/i.test(msg)) {
+      return { __error: 'Provider account out of credit / over quota: ' + msg };
     }
-    if (/rate.?limit/i.test(msg)) {
-      return { __error: 'Anthropic rate limit hit — retry shortly: ' + msg };
+    if (/rate.?limit|HTTP 429/i.test(msg)) {
+      return { __error: 'Rate limit hit — retry shortly.' };
     }
-    return { __error: 'Anthropic error: ' + msg };
+    return { __error: 'LLM error: ' + msg };
   }
-  const raw = data.content?.[0]?.text?.trim();
-  if (!raw) {
-    return { __error: 'Anthropic returned empty content (model may have hit a stop condition).' };
+  if (!text) {
+    return { __error: 'Model returned empty content (it may have hit a stop condition).' };
   }
   try {
-    return { __json: JSON.parse(raw.replace(/^```json|^```|```$/gm, '').trim()) };
+    return { __json: JSON.parse(text.replace(/^```json|^```|```$/gm, '').trim()) };
   } catch (e) {
     return {
-      __error: 'Model returned invalid JSON: ' + e.message + ' (first 200 chars: ' + raw.slice(0, 200) + ')',
+      __error: 'Model returned invalid JSON: ' + e.message + ' (first 200 chars: ' + text.slice(0, 200) + ')',
     };
   }
 }
@@ -85,7 +72,7 @@ function getAllContent(sessionId) {
 }
 
 // ── Quiz generator ────────────────────────────────────────────────────────────
-export async function generateQuiz(apiKey, topic, count=5) {
+export async function generateQuiz(llm, topic, count=5) {
   const content = getTopicContent(topic, topic);
   if (!content) return { error: 'No content found for this topic' };
 
@@ -103,8 +90,8 @@ Format:
 Material:
 ${content.slice(0, 3000)}`;
 
-  const result = await callClaude(apiKey, {
-    model: 'claude-haiku-4-5-20251001', max_tokens: 1500, temperature: 0.7,
+  const result = await callLLM(llm, {
+    maxTokens: 1500, temperature: 0.7,
     messages: [{ role: 'user', content: prompt }],
   });
   if (result.__error) return { error: result.__error };
@@ -112,7 +99,7 @@ ${content.slice(0, 3000)}`;
 }
 
 // ── Topic summarizer ──────────────────────────────────────────────────────────
-export async function summarizeTopic(apiKey, unit, topic) {
+export async function summarizeTopic(llm, unit, topic) {
   const content = getTopicContent(unit, topic);
   if (!content) return { error: 'No content found' };
 
@@ -132,8 +119,8 @@ Format:
 Material:
 ${content.slice(0, 3000)}`;
 
-  const result = await callClaude(apiKey, {
-    model: 'claude-haiku-4-5-20251001', max_tokens: 1000, temperature: 0.3,
+  const result = await callLLM(llm, {
+    maxTokens: 1000, temperature: 0.3,
     messages: [{ role: 'user', content: prompt }],
   });
   if (result.__error) return { error: result.__error };
@@ -141,7 +128,7 @@ ${content.slice(0, 3000)}`;
 }
 
 // ── Flashcard generator ───────────────────────────────────────────────────────
-export async function generateFlashcards(apiKey, unit, topic, count=10) {
+export async function generateFlashcards(llm, unit, topic, count=10) {
   const content = getTopicContent(unit, topic);
   if (!content) return { error: 'No content found' };
 
@@ -152,8 +139,8 @@ Return ONLY a JSON array:
 Material:
 ${content.slice(0, 2500)}`;
 
-  const result = await callClaude(apiKey, {
-    model: 'claude-haiku-4-5-20251001', max_tokens: 1200, temperature: 0.5,
+  const result = await callLLM(llm, {
+    maxTokens: 1200, temperature: 0.5,
     messages: [{ role: 'user', content: prompt }],
   });
   if (result.__error) return { error: result.__error };
@@ -161,26 +148,19 @@ ${content.slice(0, 2500)}`;
 }
 
 // ── Session topic detector ────────────────────────────────────────────────────
-export async function detectCurrentTopic(apiKey, recentTranscript) {
+export async function detectCurrentTopic(llm, recentTranscript) {
   if (!recentTranscript || recentTranscript.length < 20) return null;
 
   const topics = db.prepare(`SELECT DISTINCT unit, topic FROM docs ORDER BY unit, topic`).all();
   const topicList = topics.map(t => `${t.unit} / ${t.topic}`).join('\n');
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001', max_tokens: 60, temperature: 0,
-        system: `Given a transcript snippet and a list of course topics, identify the best matching topic.
+  const result = await callLLM(llm, {
+    maxTokens: 60, temperature: 0,
+    system: `Given a transcript snippet and a list of course topics, identify the best matching topic.
 Return ONLY JSON: {"unit": "...", "topic": "...", "confidence": 0.0-1.0}
 If nothing matches well, return {"unit": null, "topic": null, "confidence": 0}`,
-        messages: [{ role:'user', content: `Transcript: "${recentTranscript.slice(0,300)}"\n\nAvailable topics:\n${topicList}` }]
-      })
-    });
-    const data = await res.json();
-    const raw  = data.content?.[0]?.text?.trim().replace(/^```json|^```|```$/gm,'').trim();
-    return JSON.parse(raw);
-  } catch(_) { return null; }
+    messages: [{ role:'user', content: `Transcript: "${recentTranscript.slice(0,300)}"\n\nAvailable topics:\n${topicList}` }]
+  });
+  if (result.__error) return null;
+  return result.__json;
 }
