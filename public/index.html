@@ -103,6 +103,26 @@
         --dim: #8a857e;
         --muted: #3a3a40;
         --glow: 0 0 20px rgba(255, 60, 75, 0.18);
+
+        /* ── Liquid Glass layer (DARK) — frosted panes over the near-black
+         * canvas. Tint stays in the Studio Dark family; live-red is reserved
+         * for the accent rim on interactive/featured surfaces. ── */
+        --glass-tint: rgba(21, 21, 26, 0.62);
+        --glass-tint-strong: rgba(21, 21, 26, 0.82);
+        --glass-blur: 14px;
+        --glass-blur-strong: 20px;
+        --glass-saturate: 160%;
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-highlight: rgba(255, 255, 255, 0.16);
+        --glass-shadow:
+          0 1px 0 0 var(--glass-highlight) inset,
+          0 16px 40px -16px rgba(0, 0, 0, 0.55),
+          0 2px 8px -4px rgba(0, 0, 0, 0.4);
+        --glass-radius: 14px;
+        --glass-radius-lg: 18px;
+        --glass-edge-red: rgba(255, 60, 75, 0.45);
+        --glass-edge-blue: rgba(125, 219, 255, 0.4);
+        --font-display: "Fraunces", ui-serif, Georgia, serif;
       }
       * {
         box-sizing: border-box;
@@ -123,6 +143,7 @@
           BlinkMacSystemFont,
           sans-serif;
         height: 100vh;
+        height: 100dvh;
         display: flex;
         flex-direction: column;
       }
@@ -143,6 +164,73 @@
           );
         pointer-events: none;
         z-index: 0;
+      }
+
+      /* ── Liquid Glass surface recipes ─────────────────────────────────
+       * .glass        base frosted pane
+       * .glass-strong heavier tint for modals / overlaid content
+       * .glass-edge   accent specular rim (defaults live-red; override --edge)
+       * Every backdrop-filter ships its -webkit- prefix (iOS Safari, Tier 1).
+       * ───────────────────────────────────────────────────────────────── */
+      .glass {
+        position: relative;
+        background: var(--glass-tint);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--glass-radius);
+        -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        box-shadow: var(--glass-shadow);
+        isolation: isolate;
+      }
+      .glass::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(180deg, var(--glass-highlight) 0%, transparent 38%, transparent 100%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        z-index: 1;
+      }
+      .glass-strong {
+        background: var(--glass-tint-strong);
+        border-radius: var(--glass-radius-lg);
+        -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+      }
+      .glass-edge {
+        --edge: var(--glass-edge-red);
+        border-color: color-mix(in srgb, var(--edge) 60%, var(--glass-border));
+        box-shadow:
+          0 0 0 1px var(--edge) inset,
+          var(--glass-shadow),
+          var(--glow);
+      }
+      /* Fallback: engines without backdrop-filter get a solid pane so text stays readable. */
+      @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+        .glass, .glass-strong { background: var(--s1); }
+      }
+      /* Reduced transparency → solid card, no blur, no specular. */
+      @media (prefers-reduced-transparency: reduce) {
+        .glass, .glass-strong {
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          background: var(--s1);
+        }
+        .glass::before { opacity: 0; }
+      }
+      /* Higher contrast → opaque + stronger border to guarantee AAA text contrast. */
+      @media (prefers-contrast: more) {
+        .glass, .glass-strong {
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+          background: var(--s1);
+          border-color: var(--dim);
+        }
       }
       header {
         position: relative;
@@ -194,6 +282,8 @@
         display: flex;
         align-items: center;
         gap: 4px;
+        -webkit-backdrop-filter: blur(8px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(8px) saturate(var(--glass-saturate));
       }
       .chip.g {
         background: rgba(57, 229, 168, 0.08);
@@ -244,15 +334,22 @@
         }
       }
       .hbtn {
-        padding: 4px 10px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 8px 14px;
+        background: var(--glass-tint);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--dim);
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 10px;
+        font-size: 12px;
         cursor: pointer;
+        -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+        box-shadow: 0 1px 0 0 var(--glass-highlight) inset;
         transition: all 0.15s;
       }
       .hbtn:hover {
@@ -269,7 +366,10 @@
         overflow: hidden;
       }
       .left {
-        border-right: 1px solid var(--border);
+        border-right: 1px solid var(--glass-border);
+        background: var(--glass-tint);
+        -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
         display: flex;
         flex-direction: column;
         overflow-y: auto;
@@ -392,8 +492,8 @@
         justify-content: space-between;
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 9px;
-        color: var(--muted);
+        font-size: 11px;
+        color: var(--dim);
       }
       .vu-track {
         width: 100%;
@@ -425,21 +525,22 @@
       }
       .dev-select {
         width: 100%;
-        padding: 5px 8px;
+        min-height: 38px;
+        padding: 9px 10px;
         background: var(--s2);
         border: 1px solid var(--border);
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--text);
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 10px;
+        font-size: 13px;
         cursor: pointer;
         outline: none;
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6070'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 8px center;
-        padding-right: 22px;
+        background-position: right 10px center;
+        padding-right: 28px;
       }
       .dev-select:focus {
         border-color: var(--cyan);
@@ -447,10 +548,10 @@
       .dev-status {
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 9px;
-        padding: 4px 8px;
-        border-radius: 5px;
-        margin-top: 4px;
+        font-size: 11px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        margin-top: 6px;
       }
       .dev-status.bh {
         background: rgba(57, 229, 168, 0.06);
@@ -469,15 +570,21 @@
       }
       .mode-btn {
         flex: 1;
-        padding: 5px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 10px 8px;
+        background: var(--glass-tint);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--dim);
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 9px;
+        font-size: 12px;
         cursor: pointer;
+        -webkit-backdrop-filter: blur(8px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(8px) saturate(var(--glass-saturate));
         transition: all 0.15s;
       }
       .mode-btn.on {
@@ -496,8 +603,8 @@
         justify-content: space-between;
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 9px;
-        color: var(--muted);
+        font-size: 11px;
+        color: var(--dim);
       }
       input[type="range"] {
         width: 100%;
@@ -1025,20 +1132,24 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
       }
       .modal-overlay.hidden {
         display: none;
       }
       .modal {
-        background: var(--s1);
-        border: 1px solid var(--border);
-        border-radius: 12px;
+        background: var(--glass-tint-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
         width: min(680px, 95vw);
         max-height: 88vh;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        box-shadow: var(--glass-shadow);
         animation: slideUp 0.18s ease;
       }
       .modal-hdr {
@@ -1050,18 +1161,21 @@
         flex-shrink: 0;
       }
       .modal-hdr h2 {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
       }
       .modal-close {
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
         background: transparent;
         border: 1px solid var(--border);
         color: var(--dim);
         cursor: pointer;
-        font-size: 14px;
+        font-size: 18px;
         transition: all 0.15s;
       }
       .modal-close:hover {
@@ -1116,10 +1230,11 @@
         background: transparent;
         color: var(--text);
         border: 0.5px solid var(--border);
-        border-radius: 7px;
-        padding: 8px 14px;
+        border-radius: 8px;
+        min-height: 40px;
+        padding: 10px 16px;
         font-family: inherit;
-        font-size: 13px;
+        font-size: 14px;
         cursor: pointer;
         transition: border-color 180ms ease, color 180ms ease,
           background 180ms ease;
@@ -1144,10 +1259,10 @@
         width: 100%;
         background: transparent;
         border: 0.5px solid var(--border);
-        border-radius: 6px;
-        padding: 9px 12px;
+        border-radius: 8px;
+        padding: 11px 14px;
         font-family: "Geist Mono", ui-monospace, monospace;
-        font-size: 13px;
+        font-size: 16px;
         color: var(--text);
       }
       .settings-input:focus {
@@ -1184,14 +1299,17 @@
         flex-shrink: 0;
       }
       .mtab {
-        padding: 5px 13px;
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 8px 16px;
         background: none;
         border: none;
         border-bottom: 2px solid transparent;
-        color: var(--muted);
+        color: var(--dim);
         font-family:
           "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 10px;
+        font-size: 13px;
         cursor: pointer;
         margin-bottom: -1px;
       }
@@ -1582,13 +1700,15 @@
         max-width: 1200px;
         height: 88vh;
         max-height: 880px;
-        background: var(--s1);
-        border: 0.5px solid var(--border);
-        border-radius: 14px;
+        background: var(--glass-tint-strong);
+        border: 0.5px solid var(--glass-border);
+        border-radius: 18px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.6);
+        -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        box-shadow: var(--glass-shadow), 0 24px 64px -16px rgba(0, 0, 0, 0.6);
       }
       .lib-head {
         display: flex;
@@ -1628,16 +1748,21 @@
         margin-left: auto;
       }
       .lib-filter {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
         font-family: "Geist Mono", ui-monospace, monospace;
-        font-size: 10px;
-        letter-spacing: 0.18em;
+        font-size: 11px;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
-        padding: 7px 12px;
-        border-radius: 6px;
-        background: transparent;
-        border: 0.5px solid var(--border);
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--glass-tint);
+        border: 0.5px solid var(--glass-border);
         color: var(--dim);
         cursor: pointer;
+        -webkit-backdrop-filter: blur(8px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(8px) saturate(var(--glass-saturate));
         transition: all 150ms;
       }
       .lib-filter:hover {
@@ -1650,14 +1775,17 @@
         border-color: var(--cyan);
       }
       .lib-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         background: transparent;
         border: 0.5px solid var(--border);
         color: var(--text);
-        width: 34px;
-        height: 34px;
-        border-radius: 6px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 18px;
         transition: all 150ms;
       }
       .lib-close:hover {
@@ -2025,6 +2153,7 @@
         inset: 0;
         z-index: 1100;
         background: rgba(7, 7, 9, 0.94);
+        -webkit-backdrop-filter: blur(8px);
         backdrop-filter: blur(8px);
         display: flex;
         align-items: center;
@@ -2247,11 +2376,13 @@
 
       /* Theme toggle button */
       .theme-toggle {
-        width: 34px;
-        height: 34px;
-        background: transparent;
-        border: 0.5px solid var(--border);
+        width: 40px;
+        height: 40px;
+        background: var(--glass-tint);
+        border: 0.5px solid var(--glass-border);
         border-radius: 8px;
+        -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(10px) saturate(var(--glass-saturate));
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -2294,6 +2425,20 @@
         --text: #0a0a0a;
         --dim: #6b6660;
         --muted: #9a948d;
+
+        /* ── Liquid Glass layer (LIGHT) — brighter lip, softer cast shadow ── */
+        --glass-tint: rgba(237, 233, 223, 0.66);
+        --glass-tint-strong: rgba(255, 255, 255, 0.82);
+        --glass-blur: 16px;
+        --glass-saturate: 140%;
+        --glass-border: rgba(10, 10, 14, 0.1);
+        --glass-highlight: rgba(255, 255, 255, 0.7);
+        --glass-shadow:
+          0 1px 0 0 var(--glass-highlight) inset,
+          0 16px 40px -18px rgba(10, 10, 14, 0.18),
+          0 2px 8px -4px rgba(10, 10, 14, 0.1);
+        --glass-edge-red: rgba(255, 60, 75, 0.35);
+        --glass-edge-blue: rgba(125, 219, 255, 0.3);
       }
       html[data-theme="light"] header {
         background: rgba(244, 241, 234, 0.85);
@@ -2328,15 +2473,16 @@
       }
       .lib-search input {
         width: 100%;
+        min-height: 40px;
         background: var(--s2);
         border: 0.5px solid var(--border);
         border-radius: 8px;
-        padding: 9px 12px 9px 34px;
+        padding: 10px 14px 10px 36px;
         font-family:
           "Geist",
           -apple-system,
           sans-serif;
-        font-size: 13px;
+        font-size: 16px;
         color: var(--text);
         outline: none;
         transition: border-color 150ms;
@@ -2484,14 +2630,20 @@
         flex-wrap: wrap;
       }
       .lib-study-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
         font-family: "Geist", monospace;
-        font-size: 12px;
-        padding: 8px 12px;
-        background: var(--s1);
+        font-size: 13px;
+        padding: 10px 16px;
+        background: var(--glass-tint);
         color: var(--text);
-        border: 0.5px solid var(--border);
+        border: 0.5px solid var(--glass-border);
         border-radius: 8px;
         cursor: pointer;
+        -webkit-backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+        backdrop-filter: blur(10px) saturate(var(--glass-saturate));
         transition: border-color 150ms, color 150ms, background 150ms;
       }
       .lib-study-btn:hover:not([disabled]) {
@@ -2644,14 +2796,17 @@
         position: fixed;
         bottom: 24px;
         right: 24px;
-        background: var(--s2);
-        border: 0.5px solid var(--cyan);
-        border-radius: 12px;
+        background: var(--glass-tint-strong);
+        border: 0.5px solid color-mix(in srgb, var(--glass-edge-red) 60%, var(--glass-border));
+        border-radius: 14px;
         padding: 14px 16px 14px 14px;
         max-width: 300px;
+        -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
         box-shadow:
+          0 0 0 1px var(--glass-edge-red) inset,
           0 16px 48px -16px rgba(0, 0, 0, 0.6),
-          0 0 0 1px rgba(255, 60, 75, 0.12);
+          var(--glow);
         display: flex;
         gap: 12px;
         align-items: flex-start;
@@ -2757,22 +2912,29 @@
         align-items: center;
         flex-wrap: wrap;
         margin: 14px 0 10px;
-        padding: 10px 12px;
-        background: rgba(125, 219, 255, 0.04);
-        border: 0.5px solid rgba(125, 219, 255, 0.18);
-        border-radius: 10px;
+        padding: 12px 14px;
+        background:
+          linear-gradient(rgba(125, 219, 255, 0.05), rgba(125, 219, 255, 0.05)),
+          var(--glass-tint);
+        border: 0.5px solid color-mix(in srgb, var(--glass-edge-blue) 55%, var(--glass-border));
+        border-radius: 12px;
+        -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        box-shadow: 0 0 0 1px var(--glass-edge-blue) inset, var(--glass-shadow);
       }
       .study-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        padding: 7px 12px;
+        min-height: 38px;
+        padding: 9px 16px;
         background: transparent;
         border: 0.5px solid var(--border);
         border-radius: 999px;
         color: var(--text);
         font-family: "Geist", sans-serif;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 500;
         letter-spacing: 0.01em;
         cursor: pointer;
