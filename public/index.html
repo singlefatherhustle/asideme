@@ -3710,6 +3710,53 @@
       </div>
     </div>
 
+    <!-- Inline signup modal — lets a logged-out user start their free trial
+         without leaving the app (previously this bounced to the landing page). -->
+    <div class="modal-overlay hidden" id="signupModal">
+      <div class="modal" style="max-width: 440px">
+        <div class="modal-hdr">
+          <h2>✦ Start your free trial</h2>
+          <button class="modal-close" onclick="closeModal('signupModal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="color: var(--dim); font-size: 13px; line-height: 1.55; margin: 0 0 16px">
+            48 hours free · no card · email only, no password. Enter your email
+            and we'll send a one-click verification link.
+          </p>
+          <form id="signupForm" novalidate>
+            <input
+              type="email"
+              id="signupEmail"
+              class="settings-input"
+              placeholder="you@email.com"
+              autocomplete="email"
+              style="width: 100%; font-size: 16px; margin-bottom: 12px"
+            />
+            <label
+              style="display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text); cursor: pointer; padding: 4px 0 12px"
+            >
+              <input type="checkbox" id="signupAge" style="margin-top: 3px; cursor: pointer" />
+              <span>
+                I confirm I am at least 18 years old and have read the
+                <a href="/landing/terms.html" target="_blank" rel="noopener" style="color: var(--cyan)">Terms</a>
+                and
+                <a href="/landing/privacy.html" target="_blank" rel="noopener" style="color: var(--cyan)">Privacy Policy</a>.
+              </span>
+            </label>
+            <button
+              class="settings-btn"
+              type="submit"
+              id="signupSubmitBtn"
+              style="width: 100%; border-color: var(--cyan); color: var(--cyan)"
+            >
+              Start free trial →
+            </button>
+          </form>
+          <div id="signupStatus" role="status" style="font-size: 13px; line-height: 1.5; margin-top: 14px; min-height: 18px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Account & data settings modal -->
     <div class="modal-overlay hidden" id="settingsModal">
       <div class="modal" style="max-width: 480px">
@@ -5003,6 +5050,92 @@
           document.getElementById(id).classList.add("hidden");
         }
 
+        // Inline trial signup — opened from the header "start free trial" chip.
+        // Keeps the user in the app instead of bouncing them to the landing page.
+        function openSignupModal() {
+          const modal = document.getElementById("signupModal");
+          if (!modal) {
+            window.location.href = "/welcome";
+            return;
+          }
+          const status = document.getElementById("signupStatus");
+          if (status) {
+            status.textContent = "";
+            status.style.color = "var(--dim)";
+          }
+          modal.classList.remove("hidden");
+          const email = document.getElementById("signupEmail");
+          if (email) setTimeout(() => email.focus(), 50);
+        }
+
+        (function wireSignupForm() {
+          const form = document.getElementById("signupForm");
+          if (!form) return;
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("signupEmail");
+            const age = document.getElementById("signupAge");
+            const status = document.getElementById("signupStatus");
+            const btn = document.getElementById("signupSubmitBtn");
+            const val = (email.value || "").trim();
+            if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+              status.textContent = "Enter a valid email address.";
+              status.style.color = "var(--red)";
+              return;
+            }
+            if (!age.checked) {
+              status.textContent =
+                "Please confirm you're 18 or older to continue.";
+              status.style.color = "var(--red)";
+              return;
+            }
+            status.textContent = "Sending your verification link…";
+            status.style.color = "var(--dim)";
+            btn.disabled = true;
+            try {
+              const r = await fetch(`${BASE}/api/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ email: val }),
+              });
+              const d = await r.json();
+              if (!r.ok) {
+                status.textContent = d.message || "Signup failed.";
+                status.style.color = "var(--red)";
+                btn.disabled = false;
+                return;
+              }
+              while (status.firstChild) status.removeChild(status.firstChild);
+              status.style.color = "var(--green)";
+              const ok = document.createElement("div");
+              ok.textContent =
+                "✓ Check your inbox at " + val + " for the verification link.";
+              status.appendChild(ok);
+              if (d.verifyLink) {
+                const line = document.createElement("div");
+                line.style.marginTop = "8px";
+                line.style.fontSize = "12px";
+                line.appendChild(
+                  document.createTextNode("Or click to verify now: "),
+                );
+                const a = document.createElement("a");
+                a.href = d.verifyLink;
+                a.style.color = "var(--cyan)";
+                a.style.textDecoration = "underline";
+                a.textContent = "verify & enter →";
+                line.appendChild(a);
+                status.appendChild(line);
+              }
+              email.disabled = true;
+            } catch (err) {
+              status.textContent = "Network error: " + (err.message || err);
+              status.style.color = "var(--red)";
+              btn.disabled = false;
+            }
+          });
+        })();
+
         // ── Account & data settings ──────────────────────────────────────
         // Opens the settings modal, populates the email field from /api/me,
         // and wires the three action buttons. Idempotent — safe to call
@@ -5764,9 +5897,7 @@
                 text.textContent = "✦ start free trial";
                 chip.dataset.tip =
                   "Click to sign up for a free 48-hour trial of generation";
-                chip.onclick = () => {
-                  window.location.href = "/welcome";
-                };
+                chip.onclick = () => openSignupModal();
                 chip.style.borderColor = "var(--cyan)";
                 return;
               }

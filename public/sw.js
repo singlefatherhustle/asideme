@@ -12,7 +12,8 @@
  * The __SW_VERSION__ literal is replaced at serve-time with a content hash
  * of this file, so every change auto-invalidates the cache. (server.js)
  */
-// cache rev: 2026-06-18c — STT sample-rate fix + lighter doc warmup; bumping
+// cache rev: 2026-06-18d — inline trial signup (no more bounce to landing) +
+// STT sample-rate fix + lighter doc warmup; bumping
 // this comment changes the file hash, forcing all clients onto a fresh service
 // worker and purging stale caches from earlier broken builds.
 const SW_VERSION = "__SW_VERSION__";
