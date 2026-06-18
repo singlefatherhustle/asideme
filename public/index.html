@@ -4341,6 +4341,10 @@
             ws.binaryType = "arraybuffer";
             deepgramWs = ws;
             let connected = false;
+            // True once we've learned the server has no real STT and have
+            // switched to the browser's built-in SpeechRecognition. Guards
+            // against starting the fallback more than once.
+            let switchedToBrowser = false;
             ws.onopen = () => {
               connected = true;
               usingDeepgram = true;
@@ -4349,6 +4353,32 @@
             };
             ws.onmessage = (e) => {
               const msg = JSON.parse(e.data);
+              // The server tells us it has no server-side STT — either the
+              // active provider IS the browser fallback ({type:"info"}), or a
+              // provider key is missing ({type:"error", "...not set"}). In both
+              // cases the audio we stream goes nowhere, so switch to the
+              // browser's built-in SpeechRecognition and close this socket.
+              const noServerStt =
+                msg.type === "error" ||
+                (msg.type === "info" &&
+                  /browser speech recognition/i.test(msg.message || ""));
+              if (noServerStt) {
+                if (!switchedToBrowser) {
+                  switchedToBrowser = true;
+                  usingDeepgram = false;
+                  document.getElementById("dgChip").style.display = "none";
+                  console.log(
+                    "No server-side STT (" +
+                      (msg.message || msg.type) +
+                      ") — using browser speech recognition",
+                  );
+                  try {
+                    ws.close();
+                  } catch (_) {}
+                  startFallbackSR();
+                }
+                return;
+              }
               if (msg.type === "speech_started") clearTimeout(silenceTimer);
               else if (msg.type === "interim") {
                 interimText = msg.transcript;

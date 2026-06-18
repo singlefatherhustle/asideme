@@ -16,6 +16,11 @@ services:
       - DATABASE_PATH=/data/devlisten.db
       - APP_URL=https://asideme.app
       - CORS_ORIGIN=https://asideme.app
+      # Speech-to-text provider. No Deepgram/Google/etc. key is configured, so
+      # use the browser's built-in SpeechRecognition (Web Speech API) — free,
+      # client-side, works in Chrome + Safari. Set this to "deepgram" (and add
+      # DEEPGRAM_API_KEY) for production-grade, cross-browser transcription.
+      - TRANSCRIPTION_PROVIDER=browser
       # Email verification temporarily disabled: Resend (RESEND_API_KEY) is not
       # configured yet, so magic links can't be delivered. With this false, the
       # signup form surfaces the verify link on-page so login works without email.
