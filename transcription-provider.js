@@ -48,7 +48,10 @@ export function logProviderStatus() {
   if (warn) console.warn(warn);
 }
 
-export function createProviderConnection(clientWs, config = {}) {
+// async so callers can uniformly `await` it — the google/aws/azure/whisper
+// builders are async and return Promises; awaiting here means a Promise is
+// never mistaken for a provider object (which silently dropped audio before).
+export async function createProviderConnection(clientWs, config = {}) {
   switch (ACTIVE_PROVIDER) {
     case 'deepgram':      return createDeepgramConnection(clientWs, config);
     case 'google':        return createGoogleConnection(clientWs, config);
@@ -83,6 +86,15 @@ function createDeepgramConnection(clientWs, { apiKey }) {
   let dgConn = null;
   let ready  = false;
   const queue = [];
+  const MAX_QUEUE = 512; // ~16s of 16kHz PCM frames — bound to prevent OOM
+  // If Deepgram never opens, don't buffer audio forever — tear down.
+  const openTimer = setTimeout(() => {
+    if (!ready) {
+      send(clientWs, { type: 'error', message: 'Deepgram connection timeout' });
+      try { dgConn?.requestClose(); } catch(_) {}
+      queue.length = 0;
+    }
+  }, 10000);
 
   const open = async () => {
     try {
@@ -102,6 +114,7 @@ function createDeepgramConnection(clientWs, { apiKey }) {
       });
 
       dgConn.on('open', () => {
+        clearTimeout(openTimer);
         ready = true;
         queue.forEach(c => dgConn.send(c));
         queue.length = 0;
@@ -131,8 +144,13 @@ function createDeepgramConnection(clientWs, { apiKey }) {
   open();
 
   return {
-    send: buf => ready ? dgConn?.send(buf) : queue.push(buf),
-    stop: () => { try { dgConn?.requestClose(); } catch(_) {} },
+    send: buf => {
+      if (ready) { dgConn?.send(buf); return; }
+      // Bound the pre-open buffer: drop oldest frames rather than grow unbounded.
+      if (queue.length >= MAX_QUEUE) queue.shift();
+      queue.push(buf);
+    },
+    stop: () => { clearTimeout(openTimer); try { dgConn?.requestClose(); } catch(_) {} },
   };
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -196,13 +214,14 @@ async function createGoogleConnection(clientWs, { sampleRate = 16000, language =
         }
       })
       .on('error', err => {
-        // Restart on recoverable errors
-        if (err.code === 11) { // UNAVAILABLE
-          console.warn('Google STT stream restarted');
-          createGoogleConnection(clientWs, { sampleRate, language });
-        } else {
-          send(clientWs, { type: 'error', message: 'Google STT: ' + err.message });
-        }
+        // Tear down cleanly and signal the client to reconnect. Auto-restarting
+        // in place leaked the old stream and the replacement wasn't wired to the
+        // caller's provider handle (audio went to a dead stream).
+        try { recognizeStream.end(); } catch(_) {}
+        const message = err.code === 11 // UNAVAILABLE
+          ? 'stt_unavailable_reconnect'
+          : 'Google STT: ' + err.message;
+        send(clientWs, { type: 'error', message });
       });
 
     send(clientWs, { type: 'speech_started' });

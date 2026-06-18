@@ -23,7 +23,13 @@ RUN npm ci --omit=dev --no-audit --no-fund
 FROM node:22-slim AS runtime
 WORKDIR /app
 
-# Drop privileges — run as non-root.
+# gosu lets the root entrypoint drop to `aside` with correct signal forwarding
+# (unlike su), so SIGTERM still reaches Node for graceful shutdown.
+RUN apt-get update && apt-get install -y --no-install-recommends gosu \
+    && rm -rf /var/lib/apt/lists/*
+
+# Run as non-root. `aside` owns the app files; the entrypoint chowns the
+# persistent volume at runtime, then execs the app as this user.
 RUN groupadd -r aside && useradd -r -g aside aside
 
 # Copy production node_modules from deps stage.
@@ -34,11 +40,16 @@ COPY --chown=aside:aside . .
 ENV DATABASE_PATH=/data/devlisten.db
 RUN mkdir -p /data && chown -R aside:aside /data
 
-USER aside
+# Entrypoint runs as root only long enough to fix /data ownership (the Fly
+# volume mounts root-owned on first boot), then drops to `aside` via gosu.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 3001
 
 # Healthcheck — Fly.io reads this for service health.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "server.js"]

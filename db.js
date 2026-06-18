@@ -8,10 +8,38 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DATABASE_PATH || join(__dir, 'devlisten.db');
 export const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
+// Wait up to 5s for a lock instead of throwing SQLITE_BUSY immediately. With a
+// single sticky machine, concurrent writers (request handlers + WS transcript
+// saves + cron cleanup/reconcile) can briefly contend; better-sqlite3 writes
+// are short, so a bounded wait resolves contention without surfacing errors.
+db.pragma('busy_timeout = 5000');
 db.pragma('foreign_keys = ON');
 
 // Schema bootstrap — each DDL statement via prepare(...).run() for
 // consistency with security-tooling expectations. Migrations are idempotent.
+
+// Users table is created here in the base DB module so the sessions foreign key
+// below resolves on a fresh database (with foreign_keys=ON, preparing session
+// statements requires the parent table to exist). auth.js loads AFTER db.js, so
+// its own CREATE TABLE IF NOT EXISTS users + idempotent ALTER migrations remain
+// the source of truth for column evolution; this mirror is just the base shape.
+db.prepare(`CREATE TABLE IF NOT EXISTS users (
+  id                       INTEGER PRIMARY KEY AUTOINCREMENT,
+  email                    TEXT UNIQUE NOT NULL,
+  signup_at                INTEGER NOT NULL,
+  trial_expires_at         INTEGER NOT NULL,
+  plan                     TEXT NOT NULL DEFAULT 'trial',
+  daily_calls              INTEGER NOT NULL DEFAULT 0,
+  daily_window_at          INTEGER NOT NULL DEFAULT 0,
+  email_verified_at        INTEGER,
+  verify_token             TEXT,
+  verify_token_expires_at  INTEGER,
+  stripe_customer_id       TEXT,
+  stripe_subscription_id   TEXT,
+  subscription_status      TEXT,
+  subscription_period_end  INTEGER
+)`).run();
+
 db.prepare(`CREATE TABLE IF NOT EXISTS sessions (
   id           TEXT PRIMARY KEY,
   title        TEXT DEFAULT 'Untitled Session',
@@ -93,15 +121,9 @@ db.prepare(`CREATE INDEX IF NOT EXISTS idx_abuse_status_created ON abuse_reports
 db.prepare(`CREATE INDEX IF NOT EXISTS idx_abuse_kind_status ON abuse_reports(kind, status)`).run();
 db.prepare(`CREATE INDEX IF NOT EXISTS idx_abuse_content ON abuse_reports(content_type, content_id)`).run();
 
-// Soft-delete column for docs so admin removals are reversible.
-try {
-  db.prepare(`ALTER TABLE docs ADD COLUMN removed_at INTEGER`).run();
-} catch (e) {
-  if (!/duplicate column/i.test(e.message)) {
-    console.error("docs.removed_at migration:", e.message);
-  }
-}
-db.prepare(`CREATE INDEX IF NOT EXISTS idx_docs_removed_at ON docs(removed_at)`).run();
+// NOTE: the docs soft-delete migration lives in ingest.js, which owns the
+// `docs` table — running it here crashed first boot on a fresh DB because the
+// table doesn't exist yet when db.js loads.
 
 export function writeAuditLog(userId, action, metadata = null, req = null) {
   try {

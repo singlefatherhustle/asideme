@@ -47,11 +47,18 @@ Return a concise technical summary with:
 Keep it under 300 words. Be direct, no filler.`,
       messages: [{ role: 'user', content: `Search for: ${query}` }],
     }),
+    // Bound the call — this runs inside the SSE chat flow; a hung request would
+    // otherwise stall the user's whole answer with no upper limit.
+    signal: AbortSignal.timeout(20000),
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || 'Web search API error');
+    // Read as text first: an error body may be non-JSON (gateway HTML/502), and
+    // res.json() would throw and mask the real status.
+    const body = await res.text().catch(() => '');
+    let message = 'Web search API error';
+    try { message = JSON.parse(body).error?.message || message; } catch (_) {}
+    throw new Error(`Web search ${res.status}: ${message}`);
   }
 
   const data = await res.json();

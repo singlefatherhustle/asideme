@@ -39,6 +39,18 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_docs_filetype ON docs(file_type);
 `);
 
+// Soft-delete column for docs so admin removals are reversible. Lives here (not
+// db.js) because this module owns the docs table — running it before the table
+// exists crashed first boot on a fresh database.
+try {
+  db.prepare(`ALTER TABLE docs ADD COLUMN removed_at INTEGER`).run();
+} catch (e) {
+  if (!/duplicate column/i.test(e.message)) {
+    console.error("docs.removed_at migration:", e.message);
+  }
+}
+db.prepare(`CREATE INDEX IF NOT EXISTS idx_docs_removed_at ON docs(removed_at)`).run();
+
 // ── Stopwords ─────────────────────────────────────────────────────────────────
 const STOPWORDS = new Set(['the','a','an','is','it','in','on','at','to','of','and',
   'or','for','with','this','that','are','was','be','has','have','do','does','not',
@@ -136,11 +148,14 @@ File: ${name}`,
         ],
       }],
     }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || 'PDF Vision API error');
+    const body = await res.text().catch(() => '');
+    let message = 'PDF Vision API error';
+    try { message = JSON.parse(body).error?.message || message; } catch (_) {}
+    throw new Error(`PDF Vision ${res.status}: ${message}`);
   }
 
   const data = await res.json();
@@ -266,11 +281,14 @@ Image filename: ${name}`;
         ],
       }],
     }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || 'Vision API error');
+    const body = await res.text().catch(() => '');
+    let message = 'Vision API error';
+    try { message = JSON.parse(body).error?.message || message; } catch (_) {}
+    throw new Error(`Vision ${res.status}: ${message}`);
   }
 
   const data = await res.json();

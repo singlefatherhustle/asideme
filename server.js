@@ -133,7 +133,7 @@ import {
   needsWebSearch,
 } from "./websearch.js";
 import { createWriteStream } from "fs";
-import { mkdir } from "fs/promises";
+import { mkdir, unlink } from "fs/promises";
 import {
   createOrRefreshUser,
   getUserByEmail,
@@ -142,6 +142,7 @@ import {
   setSessionCookie,
   clearSessionCookie,
   requireActiveAccess,
+  userHasActiveAccess,
   publicUser,
   isValidEmail,
   issueVerifyToken,
@@ -362,18 +363,42 @@ app.get("/health", (_, res) => {
 });
 
 app.get("/ready", (_, res) => {
-  const checks = { db: false, anthropic_key: !!ANTHROPIC_KEY };
+  // Ready iff the DB is reachable AND at least one LLM provider is configured.
+  // The default provider is Gemini, so gating on Anthropic alone would falsely
+  // report not_ready on a correctly-configured Gemini/Groq deploy.
+  const hasLlmProvider = !!(
+    ANTHROPIC_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GROQ_API_KEY ||
+    process.env.OPENAI_API_KEY
+  );
+  const checks = { db: false, llm_provider: hasLlmProvider };
   try {
     db.prepare("SELECT 1").get();
     checks.db = true;
   } catch (_) {
     checks.db = false;
   }
-  const ready = checks.db && checks.anthropic_key;
+  const ready = checks.db && checks.llm_provider;
   res.status(ready ? 200 : 503).json({ status: ready ? "ready" : "not_ready", checks });
 });
 
-app.get("/metrics", (_, res) => {
+app.get("/metrics", (req, res) => {
+  // Ops endpoint exposing user/revenue/usage counts — must NOT be public.
+  // Gate behind a bearer token (monitoring presents `Authorization: Bearer
+  // <METRICS_TOKEN>`). Fail closed: when no token is configured, the endpoint
+  // is hidden (404) in production and only open for local dev.
+  const metricsToken = process.env.METRICS_TOKEN;
+  if (!metricsToken) {
+    if (isProd) return res.status(404).end();
+  } else {
+    const presented = (req.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    const a = Buffer.from(presented);
+    const b = Buffer.from(metricsToken);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      return res.status(401).end();
+    }
+  }
   try {
     const userCount = db.prepare("SELECT COUNT(*) as n FROM users").get().n;
     const sessionCount = db.prepare("SELECT COUNT(*) as n FROM sessions").get().n;
@@ -655,11 +680,12 @@ app.post(
         if (bytesWritten > MAX_UPLOAD_BYTES && !aborted) {
           aborted = true;
           req.unpipe(ws);
-          ws.end();
-          // Best-effort cleanup
-          try {
-            createWriteStream(dest).end();
-          } catch (_) {}
+          req.destroy();
+          ws.destroy();
+          // Remove the partial file rather than leaving a truncated artifact
+          // (the old code re-opened and re-truncated the same path, racing the
+          // original stream and never cleaning up).
+          unlink(dest).catch(() => {});
           if (!res.headersSent) {
             res.status(413).json({
               error: `Upload exceeds ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)} MB limit`,
@@ -1841,7 +1867,17 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
 
   // 1. Classify
   send("status", { stage: "classifying" });
-  const clf = await classify(llm, message);
+  let clf;
+  try {
+    clf = await classify(llm, message);
+  } catch (err) {
+    // SSE headers are already sent, so the Express error handler can't respond
+    // — surface the failure on the stream and close, or the client hangs.
+    console.error("Classify error:", err.message);
+    send("error", { message: "Generation failed. Try again." });
+    res.end();
+    return;
+  }
   if (!clf.answer) {
     send("filtered", { reason: clf.reason, original: message });
     res.end();
@@ -1863,10 +1899,18 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
   send("status", { stage: "answering", query: cleanQuery });
 
   // 3. RAG — search teacher docs + session history
-  const { context: ragContext, sources: ragSources } = getRelevantContext(
-    sessionId,
-    cleanQuery,
-  );
+  let ragContext, ragSources;
+  try {
+    ({ context: ragContext, sources: ragSources } = getRelevantContext(
+      sessionId,
+      cleanQuery,
+    ));
+  } catch (err) {
+    console.error("RAG error:", err.message);
+    send("error", { message: "Generation failed. Try again." });
+    res.end();
+    return;
+  }
   const hasRag = ragContext.length > 0;
   const hasDocRag = ragSources.some((s) => s.type === "doc");
 
@@ -1903,9 +1947,17 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
   }
 
   // 6. Add user message and build history
-  addMessage(sessionId, "user", cleanQuery, tags);
-  touchSession(sessionId);
-  const history = getMessages(sessionId, MAX_MSGS);
+  let history;
+  try {
+    addMessage(sessionId, "user", cleanQuery, tags);
+    touchSession(sessionId);
+    history = getMessages(sessionId, MAX_MSGS);
+  } catch (err) {
+    console.error("History error:", err.message);
+    send("error", { message: "Generation failed. Try again." });
+    res.end();
+    return;
+  }
 
   // 7. Build system prompt — generates responses the student can say out loud
   const systemPrompt = [
@@ -2067,14 +2119,21 @@ server.on("upgrade", (req, socket, head) => {
     return;
   }
 
-  // Reject if trial expired and not on a paid plan.
-  const trialActive = user.trial_expires_at > Date.now();
-  if (user.plan === "trial" && !trialActive) {
+  // Same access gate as the REST routes (userHasActiveAccess): covers email
+  // verification, the free-for-all flag, trial expiry, and paid status.
+  // Without this, an unverified account that /api/chat would block could still
+  // stream audio through the server's STT key.
+  const access = userHasActiveAccess(user);
+  if (!access.ok) {
+    const statusLine =
+      access.reason === "email_unverified"
+        ? "403 Forbidden"
+        : "402 Payment Required";
     socket.write(
-      "HTTP/1.1 402 Payment Required\r\n" +
+      `HTTP/1.1 ${statusLine}\r\n` +
         "Content-Type: application/json\r\n" +
         "Connection: close\r\n\r\n" +
-        JSON.stringify({ error: "trial_expired" }),
+        JSON.stringify({ error: access.reason }),
     );
     socket.destroy();
     return;
@@ -2086,61 +2145,131 @@ server.on("upgrade", (req, socket, head) => {
   });
 });
 
-wss.on("connection", (client) => {
-  let provider = null;
+// STT cost/abuse guards: bound how long one socket can stream audio through the
+// server's STT key, and how much audio we buffer before the provider is ready.
+const STT_IDLE_MS = (Number(process.env.STT_IDLE_TIMEOUT_SEC) || 120) * 1000;
+const STT_MAX_SESSION_MS =
+  (Number(process.env.STT_MAX_SESSION_MIN) || 60) * 60 * 1000;
+const STT_MAX_PENDING_CHUNKS = 256;
 
+wss.on("connection", async (client) => {
+  let provider = null;
+  let closed = false;
+  let overflowed = false;
+  const pending = []; // audio buffered while an async provider connects
+
+  const closeClient = (reason) => {
+    if (closed) return;
+    try {
+      client.send(JSON.stringify({ type: "error", message: reason }));
+    } catch (_) {}
+    try {
+      client.close();
+    } catch (_) {}
+  };
+
+  // Idle + hard-duration timers cap STT spend per connection (a held-open
+  // socket otherwise streams unbounded audio through the paid STT key).
+  let idleTimer = setTimeout(() => closeClient("stt_idle_timeout"), STT_IDLE_MS);
+  const maxTimer = setTimeout(
+    () => closeClient("stt_max_duration"),
+    STT_MAX_SESSION_MS,
+  );
+  const bumpIdle = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => closeClient("stt_idle_timeout"), STT_IDLE_MS);
+  };
+
+  // Register handlers synchronously so audio arriving while the (possibly
+  // async) provider connects is buffered rather than dropped.
+  client.on("message", (data, isBinary) => {
+    try {
+      if (isBinary) {
+        bumpIdle();
+        if (ACTIVE_PROVIDER === "google-plugin") return;
+        if (provider) {
+          provider.send(data);
+        } else if (pending.length < STT_MAX_PENDING_CHUNKS) {
+          pending.push(data);
+        } else if (!overflowed) {
+          // Bounded buffer — refuse rather than grow without limit (OOM guard,
+          // critical on a 1GB machine).
+          overflowed = true;
+          try {
+            client.send(JSON.stringify({ type: "error", message: "stt_not_ready" }));
+          } catch (_) {}
+        }
+        return;
+      }
+      const msg = JSON.parse(data.toString());
+      if (msg.type === "transcript" && provider?.handleTextMessage) {
+        provider.handleTextMessage(msg);
+      } else if (msg.type === "stop") {
+        provider?.stop();
+      } else if (msg.type === "save" && msg.sessionId) {
+        // Ownership check: only allow transcript writes to sessions owned by
+        // the authenticated user attached to this WS at upgrade time.
+        const ownedSession = getSessionForUser(msg.sessionId, client.user.id);
+        if (ownedSession) {
+          addTranscript(msg.sessionId, msg.speaker ?? 0, msg.text);
+        } else {
+          client.send(
+            JSON.stringify({ type: "error", message: "Session not found" }),
+          );
+        }
+      }
+    } catch (err) {
+      // CRITICAL: an uncaught throw in a ws 'message' handler crashes the whole
+      // process — on a single machine that kills every other user's session.
+      // Contain it to this connection.
+      log.error(
+        { event: "ws_message_error", err: err.message },
+        "WS message handler error",
+      );
+      try {
+        client.send(JSON.stringify({ type: "error", message: "stream_error" }));
+      } catch (_) {}
+    }
+  });
+
+  client.on("close", () => {
+    closed = true;
+    clearTimeout(idleTimer);
+    clearTimeout(maxTimer);
+    try {
+      provider?.stop();
+    } catch (_) {}
+  });
+  client.on("error", (err) => console.error("Client WS error:", err.message));
+
+  // Establish the STT provider (async for google/aws/azure/whisper).
   try {
-    provider = createProviderConnection(client, {
+    provider = await createProviderConnection(client, {
       apiKey: DEEPGRAM_KEY,
       sampleRate: 16000,
       language: "en-US",
       diarize: true,
     });
   } catch (err) {
-    client.send(JSON.stringify({ type: "error", message: err.message }));
+    closeClient(err.message || "stt_init_failed");
     return;
   }
 
-  client.on("message", (data, isBinary) => {
-    if (isBinary) {
-      // Raw PCM audio — forward to active STT provider (unless plugin mode)
-      if (ACTIVE_PROVIDER !== "google-plugin") {
-        provider?.send(data);
-      }
-    } else {
-      // Text messages — for control commands and google-plugin transcript passthrough
-      try {
-        const msg = JSON.parse(data.toString());
-
-        // Google Plugin sends text transcripts in its own format
-        if (msg.type === "transcript" && provider?.handleTextMessage) {
-          provider.handleTextMessage(msg);
-        }
-        // Standard control commands
-        else if (msg.type === "stop") {
-          provider?.stop();
-        } else if (msg.type === "save" && msg.sessionId) {
-          // Ownership check: only allow transcript writes to sessions owned
-          // by the authenticated user attached to this WS at upgrade time.
-          const ownedSession = getSessionForUser(msg.sessionId, client.user.id);
-          if (ownedSession) {
-            addTranscript(msg.sessionId, msg.speaker ?? 0, msg.text);
-          } else {
-            client.send(
-              JSON.stringify({ type: "error", message: "Session not found" }),
-            );
-          }
-        }
-      } catch (_) {}
-    }
-  });
-
-  client.on("close", () => {
+  // Closed while the provider was still connecting — tear it down, don't leak.
+  if (closed) {
     try {
       provider?.stop();
     } catch (_) {}
-  });
-  client.on("error", (err) => console.error("Client WS error:", err.message));
+    return;
+  }
+
+  // Flush audio buffered during provider startup.
+  for (const chunk of pending) {
+    try {
+      provider.send(chunk);
+    } catch (_) {}
+  }
+  pending.length = 0;
 });
 
 // Sentry Express error handler — must come AFTER all routes and BEFORE any
