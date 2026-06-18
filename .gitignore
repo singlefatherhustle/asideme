@@ -47,3 +47,6 @@ devlisten-v3-new/
 
 # ── Local RAG corpus (source input, not redistributable) ─────────────────────
 ingested/
+
+# GCE VM SQLite data dir (docker-compose bind mount)
+data/

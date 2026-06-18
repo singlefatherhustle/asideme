@@ -1,0 +1,7 @@
+# Caddy auto-provisions a free Let's Encrypt cert for these hostnames once DNS
+# points at this VM and ports 80/443 are reachable. Proxies to the app service
+# on the internal compose network.
+asideme.app, www.asideme.app {
+	encode zstd gzip
+	reverse_proxy app:3001
+}

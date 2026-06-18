@@ -1,0 +1,44 @@
+# AsideMe — production stack for a single GCE VM (free-tier e2-micro).
+#   app   — the Node server (SQLite on the mounted ./data dir, not exposed publicly)
+#   caddy — reverse proxy + automatic HTTPS (Let's Encrypt) for asideme.app
+#
+# Secrets live in ./.env on the VM (never committed). Non-secret config is set
+# inline below. See DEPLOY_GCP.md for the full runbook.
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_PATH=/data/devlisten.db
+      - APP_URL=https://asideme.app
+      - CORS_ORIGIN=https://asideme.app
+      - REQUIRE_EMAIL_VERIFICATION=true
+      # Caddy is the single proxy hop in front of the app.
+      - TRUST_PROXY_HOPS=1
+    volumes:
+      # SQLite persists on the VM boot disk. The container entrypoint chowns
+      # this to the non-root app user on start.
+      - ./data:/data
+    expose:
+      - "3001"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:
