@@ -4278,6 +4278,29 @@
           stopTopicPolling();
         }
 
+        // Downsample a Float32 PCM frame from `inRate` to 16 kHz with simple
+        // box averaging (cheap anti-alias). Handles non-integer ratios like
+        // 44100→16000. Used because some browsers ignore the requested 16 kHz
+        // AudioContext rate; the STT provider is always told the audio is 16 kHz.
+        function downsampleTo16k(input, inRate) {
+          if (inRate === 16000 || !inRate) return input;
+          const ratio = inRate / 16000;
+          const outLen = Math.floor(input.length / ratio);
+          const out = new Float32Array(outLen);
+          for (let i = 0; i < outLen; i++) {
+            const start = Math.floor(i * ratio);
+            const end = Math.min(input.length, Math.floor((i + 1) * ratio));
+            let sum = 0;
+            let n = 0;
+            for (let j = start; j < end; j++) {
+              sum += input[j];
+              n++;
+            }
+            out[i] = n ? sum / n : input[start] || 0;
+          }
+          return out;
+        }
+
         async function startDeepgram() {
           try {
             const devId = document.getElementById("devSelect").value;
@@ -4444,7 +4467,15 @@
             };
             processor.onaudioprocess = (e) => {
               if (!connected || ws.readyState !== WebSocket.OPEN) return;
-              const f32 = e.inputBuffer.getChannelData(0);
+              let f32 = e.inputBuffer.getChannelData(0);
+              // Safari (and some hardware) ignore the requested 16 kHz
+              // AudioContext rate and run at 44.1/48 kHz. The server tells the
+              // STT provider the audio is 16 kHz, so downsample to match —
+              // otherwise the provider gets wrong-rate audio and the transcript
+              // comes back empty or garbled.
+              if (audioCtx.sampleRate !== 16000) {
+                f32 = downsampleTo16k(f32, audioCtx.sampleRate);
+              }
               const i16 = new Int16Array(f32.length);
               for (let i = 0; i < f32.length; i++)
                 i16[i] = Math.max(-32768, Math.min(32767, f32[i] * 32768));
@@ -7815,8 +7846,15 @@
         }
 
         async function warmupDocsCache() {
-          // Best-effort: ask the SW to cache every doc path so the Library
-          // is fully browseable offline. Capped to avoid blowing up storage.
+          // Best-effort: ask the SW to cache a handful of doc paths for offline
+          // browsing. Previously this fired ~225 fetches on every page load,
+          // saturating slow connections and the small VM. Now it runs at most
+          // once per tab session and caps hard at 24 — the rest of the Library
+          // still caches lazily as the user opens docs (SW stale-while-revalidate).
+          try {
+            if (sessionStorage.getItem("aside-docs-warmed") === "1") return;
+            sessionStorage.setItem("aside-docs-warmed", "1");
+          } catch (_) {}
           try {
             const r = await fetch("/api/docs");
             if (!r.ok) return;
@@ -7824,7 +7862,7 @@
             const topics = (data && data.topics) || [];
             const paths = topics
               .filter((t) => t.path && t.file_type === "md")
-              .slice(0, 250)
+              .slice(0, 24)
               .map((t) => "/" + t.path.replace(/^\/+/, ""));
             if (paths.length && navigator.serviceWorker.controller) {
               navigator.serviceWorker.controller.postMessage({
