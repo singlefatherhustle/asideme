@@ -7,7 +7,7 @@ Answer FALSE for: pure filler (um/uh/so), fragments under 5 substantive words, a
 When TRUE, "query" must be a clean well-formed version fixing transcription errors and removing filler.
 Be permissive — when uncertain, answer true.`;
 
-import { completeText } from './llm-provider.js';
+import { completeText, isProvider } from './llm-provider.js';
 
 // classify(llm, text) — llm is a resolveProvider() context ({ ok, provider, apiKey }).
 export async function classify(llm, text) {
@@ -17,7 +17,7 @@ export async function classify(llm, text) {
     return { answer: false, reason: 'filler', query: text };
 
   // No provider available → be permissive so the pipeline still answers.
-  if (!llm || !llm.ok || !llm.apiKey) {
+  if (!llm || !llm.ok || !llm.apiKey || !isProvider(llm.provider)) {
     return { answer: true, reason: 'classifier unavailable', query: text };
   }
 
@@ -30,7 +30,7 @@ export async function classify(llm, text) {
       system: SYSTEM,
       messages: [{ role: 'user', content: text }],
     });
-    const raw = out?.trim().replace(/^```json|```$/g, '').trim() || '{}';
+    const raw = out?.trim().replace(/^```json|^```|```$/gm, '').trim() || '{}';
     const result = JSON.parse(raw);
     return { answer: Boolean(result.answer), reason: result.reason || '', query: result.query || text };
   } catch (e) {

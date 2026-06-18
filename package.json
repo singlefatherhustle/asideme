@@ -1,7 +1,7 @@
 {
-  "name": "devlisten",
+  "name": "aside",
   "version": "3.1.0",
-  "description": "DevListen v3 — full-featured live coding tutor",
+  "description": "ASIDE — full-featured live coding tutor",
   "type": "module",
   "main": "server.js",
   "scripts": {

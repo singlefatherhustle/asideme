@@ -1,4 +1,4 @@
-# 🚀 QUICK START — DevListen v3 Multi-Provider STT
+# 🚀 QUICK START — ASIDE Multi-Provider STT
 
 ## ✅ What's Complete
 

@@ -226,7 +226,7 @@ async function createGoogleConnection(clientWs, { sampleRate = 16000, language =
 //
 // The Chrome extension captures audio and sends transcripts as text JSON
 // directly to the /transcribe WebSocket. This server-side handler normalises
-// those messages into DevListen's standard format.
+// those messages into ASIDE's standard format.
 // ─────────────────────────────────────────────────────────────────────────────
 function createGooglePluginConnection(clientWs, config) {
   send(clientWs, {

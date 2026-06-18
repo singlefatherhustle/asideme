@@ -2196,7 +2196,7 @@ process.on("uncaughtException", (err) => {
 });
 
 server.listen(PORT, async () => {
-  console.log(`\n⚡  ASIDE.1 → http://localhost:${PORT}\n`);
+  console.log(`\n⚡  ASIDE v3.1 → http://localhost:${PORT}\n`);
   logProviderStatus();
   logLlmProviderStatus();
   if (!NOTION_KEY)

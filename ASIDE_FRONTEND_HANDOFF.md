@@ -5,17 +5,17 @@
 **Scope:** Frontend rebrand + Studio Dark palette + Library browser + Study Mode (TTS/STT) + trade dataset integration plan
 **Supersedes:** `trade-psi-pack/ASIDE_HANDOFF.md` (2026-05-16 early draft — only covers rebrand + theme bootstrap)
 
-This document captures **every frontend change made in this session** along with the line-level references, idempotent scripts, backup chain, debug notes, and the integration path for the trade-psi-pack datasets so a partner can roll the work into the original DevListen codebase or any sibling repo.
+This document captures **every frontend change made in this session** along with the line-level references, idempotent scripts, backup chain, debug notes, and the integration path for the trade-psi-pack datasets so a partner can roll the work into the original ASIDE codebase or any sibling repo.
 
 ---
 
 ## 0. TL;DR
 
-ASIDE is a **5-layer evolution** of the DevListen v3 frontend, all delivered in [public/index.html](public/index.html) (one file) plus [server.js](server.js) plus [ingest.js](ingest.js):
+ASIDE is a **5-layer evolution** of the ASIDE frontend, all delivered in [public/index.html](public/index.html) (one file) plus [server.js](server.js) plus [ingest.js](ingest.js):
 
 | Layer | What | Why |
 |---|---|---|
-| **1. Rebrand** | DevListen → **ASIDE** (uppercase, tracked), em-dash mark, Geist + Fraunces + Geist Mono | Brand identity for the trades/test-prep audience |
+| **1. Rebrand** | ASIDE → **ASIDE** (uppercase, tracked), em-dash mark, Geist + Fraunces + Geist Mono | Brand identity for the trades/test-prep audience |
 | **2. Studio Dark palette** | Near-black canvas, live-red accent, foil-gold, cue-green, signal-cyan | Pro-audio / studio aesthetic; high AAA contrast |
 | **3. Library modal** | Browse all 133 indexed `.md` docs grouped by unit; search; markdown rendering; carousel | Self-service knowledge access |
 | **4. UI polish + onboarding** | Glass header, bento panels, pill chips with tooltips, light-mode toggle, first-run hint | "Trendy + user-friendly" pass |
@@ -27,13 +27,13 @@ Plus a **client-side md-only policy**: PNG slides are blocked at the route layer
 
 ## 1. Frontend Changes — Chapter-by-chapter
 
-### 1.1 Rebrand (DevListen → ASIDE)
+### 1.1 Rebrand (ASIDE → ASIDE)
 
-**Goal:** Replace the DevListen identity with the ASIDE wordmark, em-dash mark, and brand-correct fonts.
+**Goal:** Replace the ASIDE identity with the ASIDE wordmark, em-dash mark, and brand-correct fonts.
 
 | Change | Location | Detail |
 |---|---|---|
-| `<title>` | [public/index.html:6](public/index.html:6) | `DevListen` → `ASIDE` |
+| `<title>` | [public/index.html:6](public/index.html:6) | `ASIDE` → `ASIDE` |
 | Brand mark | [public/index.html:1348](public/index.html:1348) | Gradient box + two-tone wordmark → em-dash bar + `ASIDE` in tracked caps |
 | Logo CSS | `.logo` and `.logo-mark` rules in `<style>` | Gradient box → flat 22×6 live-red bar with soft glow; letter-spacing `-0.5px` → `0.14em` uppercase |
 | Fonts | `@import` URL in `<style>` | Syne + JetBrains Mono → **Geist 400/500/600 + Fraunces (italic) + Geist Mono** |
@@ -42,7 +42,7 @@ Plus a **client-side md-only policy**: PNG slides are blocked at the route layer
 | Favicon | `<head>` injection | `<link rel="icon" href="favicon.svg">` |
 | App icon | `<head>` injection | `<link rel="apple-touch-icon" href="mark.svg">` |
 | Theme color | `<head>` injection | `<meta name="theme-color" content="#0B0B0E">` |
-| Body strings | 3 occurrences | "DevListen hears the teacher…" → "ASIDE hears the teacher…" |
+| Body strings | 3 occurrences | "ASIDE hears the teacher…" → "ASIDE hears the teacher…" |
 
 **Assets added** (already in place):
 - [public/favicon.svg](public/favicon.svg) — 32×32 em-dash on Stage canvas
@@ -226,7 +226,7 @@ devlistenvv3new/
 
 ---
 
-## 3. Migrating an unmodified DevListen v3 repo to ASIDE
+## 3. Migrating an unmodified ASIDE repo to ASIDE
 
 Order matters — the rebrand script depends on Studio Dark tokens being in place.
 
@@ -255,7 +255,7 @@ python3 ~/Downloads/ASIDE-studio-dark/apply-aside-rebrand.py public/index.html
 #    f) listDocTopics path selector in ingest.js (1 line)
 
 # 5. Verify
-grep -n "DevListen\|JetBrains\|Syne" public/index.html   # → empty
+grep -n "ASIDE\|JetBrains\|Syne" public/index.html   # → empty
 grep -n "<title>ASIDE\|class=\"logo\"\|favicon\.svg"  public/index.html   # → present
 
 # 6. Start the server and visit /
@@ -474,7 +474,7 @@ CSS variables change but the file size stays similar, so some browsers serve sta
 Run all of these before declaring the migration complete:
 
 ### Visual
-- [ ] `<title>` reads **ASIDE**, not DevListen
+- [ ] `<title>` reads **ASIDE**, not ASIDE
 - [ ] Header wordmark renders as em-dash + tracked-caps ASIDE (no ⚡ emoji)
 - [ ] Background is near-black (`#0B0B0E`), not blue-black
 - [ ] CTAs (mic button, primary buttons) glow live-red, not cyan
@@ -578,9 +578,19 @@ These are worth flagging but were not addressed:
 ---
 
 **Handoff complete.** A partner reading this top-to-bottom should be able to:
-1. Apply the same migration to any DevListen v3 clone in under 10 minutes
+1. Apply the same migration to any ASIDE clone in under 10 minutes
 2. Integrate the 8 trade exam datasets in under 5 minutes
 3. Verify the deploy against the §7 checklist before going live
 4. Roll back any layer cleanly via §8
 
 If anything in this doc drifts from reality, **the code in [public/index.html](public/index.html) is authoritative** — re-read the IIFE blocks at the bottom of the file before re-deriving anything.
+
+---
+
+## 11. Tooling setup
+
+Install the liquid-glass design skill for the glass-header / bento aesthetic work:
+
+```sh
+ecc-install --skills liquid-glass-design --target claude
+```

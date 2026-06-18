@@ -15,7 +15,7 @@ import { completeText, isProvider } from './llm-provider.js';
 // the user's BYOK provider, or the owner's free default. Maps provider errors to
 // clear user-facing text and parses the model's JSON output (any provider).
 async function callLLM(llm, { system, messages, maxTokens, temperature }) {
-  if (!llm || !llm.ok || !llm.apiKey || !isProvider(llm.provider)) {
+  if (!llm || !llm.ok || !llm.apiKey || !llm.provider || !isProvider(llm.provider)) {
     return {
       __error:
         'No AI provider available — add your own API key in Settings, or the server needs a free-provider key configured.',
@@ -151,7 +151,7 @@ ${content.slice(0, 2500)}`;
 export async function detectCurrentTopic(llm, recentTranscript) {
   if (!recentTranscript || recentTranscript.length < 20) return null;
 
-  const topics = db.prepare(`SELECT DISTINCT unit, topic FROM docs ORDER BY unit, topic`).all();
+  const topics = db.prepare(`SELECT DISTINCT unit, topic FROM docs ORDER BY unit, topic LIMIT 50`).all();
   const topicList = topics.map(t => `${t.unit} / ${t.topic}`).join('\n');
 
   const result = await callLLM(llm, {
