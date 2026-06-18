@@ -4153,10 +4153,10 @@
         }
 
         async function toggleMic() {
-          if (!sessionId) {
-            showToast("Waiting for backend...");
-            return;
-          }
+          // Session is created lazily inside startMic() -> ensureSession() on
+          // the first click. Do NOT guard on sessionId here: it is always null
+          // on first use, and an early return would block the very path that
+          // creates the session (and handles the 401 -> /welcome redirect).
           isListening ? stopMic() : await startMic();
         }
 
