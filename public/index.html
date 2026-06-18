@@ -4112,8 +4112,11 @@
             });
             if (!r.ok) {
               if (r.status === 401) {
-                showToast("Sign up to start a session — opening /welcome");
-                setTimeout(() => (window.location.href = "/welcome"), 1200);
+                // Not signed in — prompt signup INLINE instead of redirecting to
+                // /welcome (which 301s to the landing page and read to the user
+                // as "hitting record just refreshes to the first page").
+                showToast("Start your free trial to record");
+                openSignupModal();
               }
               return null;
             }
@@ -5267,8 +5270,7 @@
             const d = await r.json();
             if (!d.user) {
               emailEl.textContent = "Not signed in";
-              showToast("Sign up first — opening /welcome");
-              setTimeout(() => (window.location.href = "/welcome"), 1200);
+              openSignupModal();
               return;
             }
             emailEl.textContent = "Signed in as: " + d.user.email;
