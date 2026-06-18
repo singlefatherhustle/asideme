@@ -155,6 +155,10 @@ function buildRequest(provider, apiKey, { system, messages, maxTokens, temperatu
         generationConfig: {
           maxOutputTokens: maxTokens,
           ...(temperature != null ? { temperature } : {}),
+          // Gemini 2.5 models "think" before answering, adding 1–6s of latency.
+          // For a live class assistant, speed beats chain-of-thought — disable
+          // it. Only sent for 2.5 models (older models reject the field).
+          ...(/2\.5/.test(model) ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
         },
       },
     };
