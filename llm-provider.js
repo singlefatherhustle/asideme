@@ -17,7 +17,7 @@ export const PROVIDERS = {
   gemini: {
     label: "Google Gemini",
     env: "GEMINI_API_KEY",
-    model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
+    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     free: true,
     keyHint: "AIza…",
   },
