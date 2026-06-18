@@ -17,25 +17,39 @@ VM="${VM_NAME:-asideme}"
 gcloud config set project "$PROJECT"
 
 echo "==> Reserving static external IP (asideme-ip) in $REGION"
-gcloud compute addresses create asideme-ip --region "$REGION" 2>/dev/null \
-  || echo "    (already exists)"
+# describe-then-create so real errors (perms, quota, bad region) surface instead
+# of being swallowed; only the "already exists" case is skipped quietly.
+if ! gcloud compute addresses describe asideme-ip --region "$REGION" &>/dev/null; then
+  gcloud compute addresses create asideme-ip --region "$REGION"
+else
+  echo "    (already exists)"
+fi
 IP="$(gcloud compute addresses describe asideme-ip --region "$REGION" --format='value(address)')"
 
 echo "==> Creating firewall rules for HTTP/HTTPS"
-gcloud compute firewall-rules create allow-http \
-  --allow tcp:80 --target-tags http-server 2>/dev/null || echo "    (allow-http exists)"
-gcloud compute firewall-rules create allow-https \
-  --allow tcp:443 --target-tags https-server 2>/dev/null || echo "    (allow-https exists)"
+if ! gcloud compute firewall-rules describe allow-http &>/dev/null; then
+  gcloud compute firewall-rules create allow-http --allow tcp:80 --target-tags http-server
+else
+  echo "    (allow-http exists)"
+fi
+if ! gcloud compute firewall-rules describe allow-https &>/dev/null; then
+  gcloud compute firewall-rules create allow-https --allow tcp:443 --target-tags https-server
+else
+  echo "    (allow-https exists)"
+fi
 
 echo "==> Creating e2-micro VM ($VM) in $ZONE"
-gcloud compute instances create "$VM" \
-  --zone "$ZONE" \
-  --machine-type e2-micro \
-  --image-family debian-12 --image-project debian-cloud \
-  --boot-disk-size 30GB --boot-disk-type pd-standard \
-  --address "$IP" \
-  --tags http-server,https-server 2>/dev/null \
-  || echo "    (instance exists)"
+if ! gcloud compute instances describe "$VM" --zone "$ZONE" &>/dev/null; then
+  gcloud compute instances create "$VM" \
+    --zone "$ZONE" \
+    --machine-type e2-micro \
+    --image-family debian-12 --image-project debian-cloud \
+    --boot-disk-size 30GB --boot-disk-type pd-standard \
+    --address "$IP" \
+    --tags http-server,https-server
+else
+  echo "    (instance exists)"
+fi
 
 echo
 echo "============================================================"

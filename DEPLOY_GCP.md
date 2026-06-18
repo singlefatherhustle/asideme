@@ -42,26 +42,32 @@ In GoDaddy → `asideme.app` → DNS → Records, set (delete any conflicting
 DNS can take a few minutes to an hour to propagate. Check with:
 `dig +short asideme.app` — it should return your static IP before step 5.
 
-## 3. Provision the VM (on the VM)
+## 3. Push the code to the VM (laptop)
+
+The repo is **private**, so cloning on the VM would need a GitHub token. Instead
+push a clean snapshot of the committed files (no token required):
+
+```bash
+git archive --format=tar.gz -o /tmp/asideme.tar.gz HEAD
+gcloud compute scp /tmp/asideme.tar.gz asideme:~/asideme.tar.gz --zone us-central1-a
+gcloud compute ssh asideme --zone us-central1-a --command \
+  'rm -rf ~/asideme && mkdir -p ~/asideme && tar xzf ~/asideme.tar.gz -C ~/asideme && mkdir -p ~/asideme/data'
+```
+
+> For future updates: re-run these three commands then `docker compose up -d
+> --build` on the VM. Or configure a GitHub deploy key / PAT on the VM and use
+> `git pull`.
+
+## 4. Provision + configure + launch (on the VM)
 
 ```bash
 gcloud compute ssh asideme --zone us-central1-a
 # now on the VM:
-curl -fsSL https://raw.githubusercontent.com/singlefatherhustle/asideme/main/deploy/provision.sh | bash
-# OR clone first (private repo) and run ./deploy/provision.sh
-```
-
-Installs Docker + a 2GB swap file (the 1GB VM needs it to build the native
-SQLite module). **Log out and back in** afterward so the `docker` group applies.
-
-## 4. Configure secrets + launch (on the VM)
-
-```bash
-git clone https://github.com/singlefatherhustle/asideme.git
-cd asideme
-mkdir -p data
+cd ~/asideme
+bash deploy/provision.sh   # Docker + 2GB swap (1GB VM needs it to build SQLite)
+# log out and back in so the docker group applies, then:
 cp .env.example .env
-nano .env        # fill in the values below
+nano .env                  # fill in the values below
 docker compose up -d --build
 ```
 
@@ -78,7 +84,7 @@ GROQ_API_KEY=            # free fallback: https://console.groq.com/keys
 
 # --- Required because email verification is ON in compose ---
 RESEND_API_KEY=          # https://resend.com  (verify the asideme.app domain)
-EMAIL_FROM=AsideMe <noreply@asideme.app>
+EMAIL_FROM="AsideMe <noreply@asideme.app>"
 
 # --- Recommended ---
 SENTRY_DSN=              # error tracking
