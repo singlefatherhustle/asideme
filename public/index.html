@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>ASIDE</title>
+    <title>AsideMe</title>
     <!-- PWA: manifest, theme color, iOS install hooks -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#0B0B0E" />
@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ASIDE" />
+    <meta name="apple-mobile-web-app-title" content="AsideMe" />
     <meta name="mobile-web-app-capable" content="yes" />
     <script>
       // Theme bootstrap — runs before paint to avoid FOUC.
@@ -3113,9 +3113,9 @@
   </head>
   <body>
     <header>
-      <div class="logo" role="img" aria-label="ASIDE v3">
+      <div class="logo" role="img" aria-label="AsideMe v3">
         <span class="logo-mark" aria-hidden="true"></span>
-        ASIDE
+        AsideMe
         <span
           style="
             font-size: 10px;
@@ -3189,7 +3189,7 @@
           class="hbtn"
           id="installBtn"
           type="button"
-          aria-label="Install ASIDE as a desktop app"
+          aria-label="Install AsideMe as a desktop app"
           hidden
         >
           ↓ INSTALL
@@ -3429,7 +3429,7 @@
             <div class="emi">🎤</div>
             <div>Listening for the teacher...</div>
             <div class="emh">
-              ASIDE hears the teacher and generates smart responses you can say
+              AsideMe hears the teacher and generates smart responses you can say
               out loud. Hold Space to capture a specific moment.
             </div>
           </div>
@@ -3602,7 +3602,7 @@
         </div>
         <div class="modal-body">
           <p style="color: var(--text); font-size: 14px; line-height: 1.6; margin: 0 0 14px">
-            ASIDE is about to start capturing audio from your microphone or
+            AsideMe is about to start capturing audio from your microphone or
             system. <strong>You are responsible for getting consent from
             everyone whose voice is being recorded.</strong>
           </p>
@@ -3638,7 +3638,7 @@
           </div>
 
           <p style="color: var(--dim); font-size: 13px; line-height: 1.55; margin: 0 0 18px">
-            Ask first. If you're not sure, don't record. ASIDE always shows
+            Ask first. If you're not sure, don't record. AsideMe always shows
             a visible recording indicator while the mic is hot, but the
             disclosure to others is on you.
           </p>
@@ -3727,7 +3727,7 @@
           <section class="settings-section">
             <h3 class="settings-h3">AI provider</h3>
             <p class="settings-desc">
-              ASIDE runs on a <strong>free built-in AI</strong> by default. Add
+              AsideMe runs on a <strong>free built-in AI</strong> by default. Add
               your own API key to run on your own provider with a higher daily
               limit — your key is encrypted at rest, never shown to anyone, and
               used only server-side to call your chosen AI provider (it is never
@@ -3772,7 +3772,7 @@
           <section class="settings-section">
             <h3 class="settings-h3">Your data</h3>
             <p class="settings-desc">
-              Download everything ASIDE has stored on your account — every
+              Download everything AsideMe has stored on your account — every
               session, transcript, question, and answer — as a single JSON
               file. Required by GDPR Art. 15 + 20.
             </p>
@@ -3837,7 +3837,7 @@
         <div class="modal-body">
           <p style="color: var(--text); font-size: 14px; line-height: 1.55; margin: 0 0 14px">
             This removes your account and <strong>every</strong> session,
-            transcript, question, and answer ASIDE has stored for you. There
+            transcript, question, and answer AsideMe has stored for you. There
             is no undo.
           </p>
           <p style="color: var(--dim); font-size: 13px; line-height: 1.55; margin: 0 0 16px">
@@ -3943,7 +3943,7 @@
               color: var(--blue);
             "
           >
-            💡 Mention a URL from npm, MDN, or GitHub and ASIDE fetches +
+            💡 Mention a URL from npm, MDN, or GitHub and AsideMe fetches +
             indexes it automatically
           </div>
         </div>
@@ -4867,7 +4867,7 @@
           qaCount = answeredCount = filteredCount = totalMs = 0;
           tagCounts = {};
           document.getElementById("feed").innerHTML =
-            '<div class="empty"><div class="emi">🎤</div><div>Listening for the teacher...</div><div class="emh">ASIDE hears the teacher and generates smart responses you can say out loud. Hold Space to capture a specific moment.</div></div>';
+            '<div class="empty"><div class="emi">🎤</div><div>Listening for the teacher...</div><div class="emh">AsideMe hears the teacher and generates smart responses you can say out loud. Hold Space to capture a specific moment.</div></div>';
           document.getElementById("ansChip").textContent = "0 answers";
           updateStats();
           resetTranscript();
@@ -7162,7 +7162,7 @@
     </script>
 
     <script>
-      // ── ASIDE Study Mode: TTS + STT layer ──────────────────────────────
+      // ── AsideMe Study Mode: TTS + STT layer ──────────────────────────────
       // Wraps the existing renderQuizTab / renderFlashTab / renderSummaryTab
       // to add read-aloud (TTS) and transcribe-your-answer (STT) controls.
       // Uses browser SpeechSynthesis + SpeechRecognition — zero API cost.
@@ -7730,7 +7730,7 @@
             })
             .catch((err) => {
               // Log only — never block app start on SW registration failure.
-              console.warn("ASIDE SW registration failed:", err && err.message);
+              console.warn("AsideMe SW registration failed:", err && err.message);
             });
         });
 
@@ -7753,7 +7753,7 @@
               "box-shadow:0 12px 32px rgba(0,0,0,.5);";
 
             const msg = document.createElement("span");
-            msg.textContent = "↻ ASIDE updated";
+            msg.textContent = "↻ AsideMe updated";
             t.appendChild(msg);
 
             const reloadBtn = document.createElement("button");
@@ -7879,7 +7879,7 @@
                 const choice = await deferredPrompt.userChoice;
                 deferredPrompt = null;
                 if (choice && choice.outcome === "accepted") {
-                  announce("✓ Installing ASIDE…", "#5BE9B9");
+                  announce("✓ Installing AsideMe…", "#5BE9B9");
                 }
                 btn.hidden = true;
               } catch (err) {
@@ -7912,7 +7912,7 @@
           window.addEventListener("appinstalled", () => {
             btn.hidden = true;
             deferredPrompt = null;
-            announce("✓ ASIDE installed", "#5BE9B9");
+            announce("✓ AsideMe installed", "#5BE9B9");
           });
         })();
       })();

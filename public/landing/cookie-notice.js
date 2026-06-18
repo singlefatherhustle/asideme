@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────────────────
- * ASIDE — Cookie notice banner
+ * AsideMe — Cookie notice banner
  * Strictly necessary disclosure only. We use a single essential session
  * cookie (no analytics, no advertising, no tracking) so a consent flow is
  * NOT required under GDPR — but visible disclosure is best practice.
@@ -59,7 +59,7 @@
     text.style.cssText = "flex:1; min-width:240px;";
     text.appendChild(
       document.createTextNode(
-        "ASIDE uses a single essential session cookie for sign-in. No tracking, no analytics, no ads. ",
+        "AsideMe uses a single essential session cookie for sign-in. No tracking, no analytics, no ads. ",
       ),
     );
     const link = document.createElement("a");

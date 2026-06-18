@@ -1,4 +1,4 @@
-# ASIDE — Incident Response Runbook
+# AsideMe — Incident Response Runbook
 
 One page. When something breaks at 2 AM, this is what to do.
 
@@ -11,13 +11,13 @@ One page. When something breaks at 2 AM, this is what to do.
 ```sh
 fly status                              # is the machine running?
 fly logs                                # tail recent server logs
-curl https://aside.app/health           # API healthy?
-curl https://aside.app/ready            # database + STT provider ready?
+curl https://asideme.app/health           # API healthy?
+curl https://asideme.app/ready            # database + STT provider ready?
 ```
 
 If `/health` returns 200 but users report problems, it's a feature outage, not an infra outage. Jump to the relevant section below.
 
-**2. Check the providers.** Most ASIDE outages start upstream:
+**2. Check the providers.** Most AsideMe outages start upstream:
 
 | Provider | Status page |
 |---|---|
@@ -38,7 +38,7 @@ Symptom: users sign up but never receive the link. They retry, give up, churn.
 
 Most likely:
 - `RESEND_API_KEY` invalid or rotated → check `fly secrets list | grep RESEND`
-- Sender domain (`aside.app`) failing DMARC/SPF/DKIM → check Resend dashboard "Domains" tab
+- Sender domain (`asideme.app`) failing DMARC/SPF/DKIM → check Resend dashboard "Domains" tab
 - Resend itself is having an incident → check status page
 - The user's email is in the rate limit cool-off (`canIssueMagicLinkFor` — 5/hr per email)
 
@@ -75,7 +75,7 @@ Symptom: user paid but `/api/me` still says `plan: trial`. Or auto-renewals don'
 
 Most likely:
 - Webhook secret mismatch (`STRIPE_WEBHOOK_SECRET`) → check Stripe dashboard "Webhooks" tab
-- Webhook URL not registered or pointing wrong → must be `https://aside.app/api/webhooks/stripe`
+- Webhook URL not registered or pointing wrong → must be `https://asideme.app/api/webhooks/stripe`
 - Stripe deliverability blip → the daily reconciliation cron fixes drift within 24 hours
 
 To force a reconciliation now (sshable):
@@ -134,7 +134,7 @@ fly machine update --add-network-block <ip>
 ```
 
 ### 🔴 DMCA notice received
-1. Acknowledge to `dmca@aside.app` sender within 1 hour with a reference ID.
+1. Acknowledge to `dmca@asideme.app` sender within 1 hour with a reference ID.
 2. Review notice for §512(c)(3)(A) compliance — see `/landing/dmca.html` checklist.
 3. If valid, mark the report `status = removed` via admin queue and the content is taken down.
 4. Notify the user whose content was removed via the email on file, link to counter-notification process.
@@ -147,8 +147,8 @@ fly machine update --add-network-block <ip>
 | When | Who | How |
 |---|---|---|
 | Anything affecting > 1 user | Both partners | Phone/text first |
-| Customer report via `hello@aside.app` | Whoever's on duty | Acknowledge in < 2 hrs |
-| DMCA via `dmca@aside.app` | Whoever's on duty | Acknowledge in < 1 hr |
+| Customer report via `hello@asideme.app` | Whoever's on duty | Acknowledge in < 2 hrs |
+| DMCA via `dmca@asideme.app` | Whoever's on duty | Acknowledge in < 1 hr |
 | Security incident (breach, leak) | Both partners + counsel | Phone first, written follow-up within 24 hrs |
 
 ---

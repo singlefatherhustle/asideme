@@ -1,4 +1,4 @@
-# ASIDE — production Dockerfile.
+# AsideMe — production Dockerfile.
 # Targets: Node 22 LTS on slim Debian for native better-sqlite3 build.
 #
 # Build:  docker build -t aside .

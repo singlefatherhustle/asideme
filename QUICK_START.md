@@ -1,4 +1,4 @@
-# 🚀 QUICK START — ASIDE Multi-Provider STT
+# 🚀 QUICK START — AsideMe Multi-Provider STT
 
 ## ✅ What's Complete
 

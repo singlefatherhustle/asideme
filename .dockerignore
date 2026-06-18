@@ -37,6 +37,6 @@ Thumbs.db
 
 # Anything else likely-stale
 devlisten-v3-new/
-ASIDE_FRONTEND_HANDOFF.md
+AsideMe_FRONTEND_HANDOFF.md
 COMPLETION_REPORT.md
 restore-from-db.mjs

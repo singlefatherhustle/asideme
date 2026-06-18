@@ -1,5 +1,5 @@
 /**
- * billing.js — Stripe integration for ASIDE.
+ * billing.js — Stripe integration for AsideMe.
  *
  * Exposes:
  *   - getStripe()                  → lazy-init Stripe client (or null if not configured)

@@ -1,5 +1,5 @@
 /**
- * websearch.js — Web search and URL fetching for ASIDE
+ * websearch.js — Web search and URL fetching for AsideMe
  *
  * Two capabilities:
  *
@@ -135,7 +135,7 @@ export async function fetchUrl(url) {
         signal: controller.signal,
         redirect: 'manual',
         headers: {
-          'User-Agent': 'ASIDE/3.1 (educational tool)',
+          'User-Agent': 'AsideMe/3.1 (educational tool)',
           'Accept': 'text/html,application/xhtml+xml,text/plain',
         },
       });

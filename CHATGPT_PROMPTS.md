@@ -1,4 +1,4 @@
-# ChatGPT prompts for sourcing ASIDE library content
+# ChatGPT prompts for sourcing AsideMe library content
 
 Two prompts. The first one you paste **once** into ChatGPT's Custom
 Instructions (set-and-forget). The second one is your **per-subject
@@ -20,16 +20,16 @@ block into each.
 ### Field 1 — "What would you like ChatGPT to know about you?"
 
 ```
-I'm building ASIDE, a certification-exam-prep web app that lets students ask
+I'm building AsideMe, a certification-exam-prep web app that lets students ask
 questions during live class and generates quizzes, flashcards, and summaries
-from indexed study materials. ASIDE is launching soon as a paid product
+from indexed study materials. AsideMe is launching soon as a paid product
 ($9/mo) targeting non-technical exam candidates — real-estate agents,
 contractors, HVAC techs, nurses, CPAs, paralegals, OSHA 30 candidates,
 project managers, IT cert candidates, and anyone studying for a professional
 license or certification.
 
 I'm filling out the seed library — that is, the starter study material that
-ships with ASIDE so users see a populated library on day one, before they
+ships with AsideMe so users see a populated library on day one, before they
 upload anything of their own. Each subject lives as a folder of markdown
 files in this structure:
 
@@ -123,7 +123,7 @@ For each file:
 After all 5 files, list them as:
   Save as: <path>filename.md
 
-I'll save each one manually then drop the whole folder into ASIDE and
+I'll save each one manually then drop the whole folder into AsideMe and
 re-ingest.
 ```
 
@@ -209,7 +209,7 @@ mkdir -p teacher-docs/units/10-cpa_exam_prep/10.01-audit
 cd /Users/beatdump/Downloads/devlisten-v3
 # Restart the server OR hit the admin reindex endpoint (see ADD_CONTENT.md)
 
-# 4. Open the library in ASIDE — your new folder should be there.
+# 4. Open the library in AsideMe — your new folder should be there.
 #    If the auto-derived name looks ugly, rename it in the DB:
 sqlite3 devlisten.db "UPDATE docs SET unit='CPA Exam Prep' WHERE unit='cpa exam prep'"
 ```

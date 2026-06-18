@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────────────────────
- * ASIDE — Landing page interactions
+ * AsideMe — Landing page interactions
  *   • Scroll-reveal via IntersectionObserver
  *   • Cursor-tracked radial light on tiles (the ::before spotlight)
  *   • Subtle 3D tilt on cards (respect prefers-reduced-motion)
@@ -352,7 +352,7 @@
           const choice = await deferredPrompt.userChoice;
           deferredPrompt = null;
           if (choice && choice.outcome === "accepted") {
-            toast("✓ Installing ASIDE…", "#5BE9B9");
+            toast("✓ Installing AsideMe…", "#5BE9B9");
           }
           btn.hidden = true;
         } catch (err) {
@@ -373,7 +373,7 @@
     window.addEventListener("appinstalled", () => {
       btn.hidden = true;
       deferredPrompt = null;
-      toast("✓ ASIDE installed", "#5BE9B9");
+      toast("✓ AsideMe installed", "#5BE9B9");
     });
   })();
 })();

@@ -1,4 +1,4 @@
-# ASIDE — Fly.io deployment configuration.
+# AsideMe — Fly.io deployment configuration.
 #
 # Prerequisites:
 #   1. fly auth login
@@ -25,9 +25,9 @@ kill_timeout = "30s"
 [env]
   NODE_ENV = "production"
   PORT = "3001"
-  APP_URL = "https://aside.app"
+  APP_URL = "https://asideme.app"
   REQUIRE_EMAIL_VERIFICATION = "true"
-  CORS_ORIGIN = "https://aside.app"
+  CORS_ORIGIN = "https://asideme.app"
 
 # Persistent volume — SQLite database survives deploys.
 # Created once with: fly volumes create aside_data --size 1 --region atl

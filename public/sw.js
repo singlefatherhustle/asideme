@@ -1,4 +1,4 @@
-/* ASIDE — Service Worker
+/* AsideMe — Service Worker
  *
  * Read-only offline strategy (Tier 1):
  *   • App shell  → cache-first, refreshed on each new SW version.

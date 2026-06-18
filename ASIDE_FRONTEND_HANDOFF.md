@@ -1,21 +1,21 @@
-# ASIDE — Frontend Handoff, Audit, Debug & Summary
+# AsideMe — Frontend Handoff, Audit, Debug & Summary
 
-**Project:** devlistenvv3new → **ASIDE v3.1**
+**Project:** devlistenvv3new → **AsideMe v3.1**
 **Date:** 2026-05-16
 **Scope:** Frontend rebrand + Studio Dark palette + Library browser + Study Mode (TTS/STT) + trade dataset integration plan
-**Supersedes:** `trade-psi-pack/ASIDE_HANDOFF.md` (2026-05-16 early draft — only covers rebrand + theme bootstrap)
+**Supersedes:** `trade-psi-pack/AsideMe_HANDOFF.md` (2026-05-16 early draft — only covers rebrand + theme bootstrap)
 
-This document captures **every frontend change made in this session** along with the line-level references, idempotent scripts, backup chain, debug notes, and the integration path for the trade-psi-pack datasets so a partner can roll the work into the original ASIDE codebase or any sibling repo.
+This document captures **every frontend change made in this session** along with the line-level references, idempotent scripts, backup chain, debug notes, and the integration path for the trade-psi-pack datasets so a partner can roll the work into the original AsideMe codebase or any sibling repo.
 
 ---
 
 ## 0. TL;DR
 
-ASIDE is a **5-layer evolution** of the ASIDE frontend, all delivered in [public/index.html](public/index.html) (one file) plus [server.js](server.js) plus [ingest.js](ingest.js):
+AsideMe is a **5-layer evolution** of the AsideMe frontend, all delivered in [public/index.html](public/index.html) (one file) plus [server.js](server.js) plus [ingest.js](ingest.js):
 
 | Layer | What | Why |
 |---|---|---|
-| **1. Rebrand** | ASIDE → **ASIDE** (uppercase, tracked), em-dash mark, Geist + Fraunces + Geist Mono | Brand identity for the trades/test-prep audience |
+| **1. Rebrand** | AsideMe → **AsideMe** (uppercase, tracked), em-dash mark, Geist + Fraunces + Geist Mono | Brand identity for the trades/test-prep audience |
 | **2. Studio Dark palette** | Near-black canvas, live-red accent, foil-gold, cue-green, signal-cyan | Pro-audio / studio aesthetic; high AAA contrast |
 | **3. Library modal** | Browse all 133 indexed `.md` docs grouped by unit; search; markdown rendering; carousel | Self-service knowledge access |
 | **4. UI polish + onboarding** | Glass header, bento panels, pill chips with tooltips, light-mode toggle, first-run hint | "Trendy + user-friendly" pass |
@@ -27,14 +27,14 @@ Plus a **client-side md-only policy**: PNG slides are blocked at the route layer
 
 ## 1. Frontend Changes — Chapter-by-chapter
 
-### 1.1 Rebrand (ASIDE → ASIDE)
+### 1.1 Rebrand (AsideMe → AsideMe)
 
-**Goal:** Replace the ASIDE identity with the ASIDE wordmark, em-dash mark, and brand-correct fonts.
+**Goal:** Replace the AsideMe identity with the AsideMe wordmark, em-dash mark, and brand-correct fonts.
 
 | Change | Location | Detail |
 |---|---|---|
-| `<title>` | [public/index.html:6](public/index.html:6) | `ASIDE` → `ASIDE` |
-| Brand mark | [public/index.html:1348](public/index.html:1348) | Gradient box + two-tone wordmark → em-dash bar + `ASIDE` in tracked caps |
+| `<title>` | [public/index.html:6](public/index.html:6) | `AsideMe` → `AsideMe` |
+| Brand mark | [public/index.html:1348](public/index.html:1348) | Gradient box + two-tone wordmark → em-dash bar + `AsideMe` in tracked caps |
 | Logo CSS | `.logo` and `.logo-mark` rules in `<style>` | Gradient box → flat 22×6 live-red bar with soft glow; letter-spacing `-0.5px` → `0.14em` uppercase |
 | Fonts | `@import` URL in `<style>` | Syne + JetBrains Mono → **Geist 400/500/600 + Fraunces (italic) + Geist Mono** |
 | Body font | All `font-family: "Syne"` (2 hits) | → `"Geist", -apple-system, …` |
@@ -42,15 +42,15 @@ Plus a **client-side md-only policy**: PNG slides are blocked at the route layer
 | Favicon | `<head>` injection | `<link rel="icon" href="favicon.svg">` |
 | App icon | `<head>` injection | `<link rel="apple-touch-icon" href="mark.svg">` |
 | Theme color | `<head>` injection | `<meta name="theme-color" content="#0B0B0E">` |
-| Body strings | 3 occurrences | "ASIDE hears the teacher…" → "ASIDE hears the teacher…" |
+| Body strings | 3 occurrences | "AsideMe hears the teacher…" → "AsideMe hears the teacher…" |
 
 **Assets added** (already in place):
 - [public/favicon.svg](public/favicon.svg) — 32×32 em-dash on Stage canvas
 - [public/mark.svg](public/mark.svg) — 256×256 em-dash, used as apple-touch-icon
 
-**How it was applied:** `python3 ASIDE-studio-dark/apply-aside-rebrand.py public/index.html` — idempotent rebrand script. Re-running on a rebranded file produces zero changes.
+**How it was applied:** `python3 AsideMe-studio-dark/apply-aside-rebrand.py public/index.html` — idempotent rebrand script. Re-running on a rebranded file produces zero changes.
 
-**Brand rule override:** the previous kit forbade uppercase ASIDE; the new rule is **always uppercase, +0.14em tracking** (marquee feel). The `Geist 600` weight + capitalization gives the wordmark its "spotlight on the actor" presence.
+**Brand rule override:** the previous kit forbade uppercase AsideMe; the new rule is **always uppercase, +0.14em tracking** (marquee feel). The `Geist 600` weight + capitalization gives the wordmark its "spotlight on the actor" presence.
 
 ---
 
@@ -77,7 +77,7 @@ Plus a **client-side md-only policy**: PNG slides are blocked at the route layer
 
 **Plus 7 RGBA tuple migrations** for inline color references (cyan→Live, violet→Foil, green→Cue, etc.) and `#a78bfa` → `#D9B86F`. Total: **50 substitutions** in the color pass.
 
-**How it was applied:** `python3 ASIDE-studio-dark/apply-studio-dark.py public/index.html` — atomic, idempotent. Backs up to `public/index.html.pre-studio-dark.YYYYMMDD-HHMMSS.bak`.
+**How it was applied:** `python3 AsideMe-studio-dark/apply-studio-dark.py public/index.html` — atomic, idempotent. Backs up to `public/index.html.pre-studio-dark.YYYYMMDD-HHMMSS.bak`.
 
 **Contrast verification (vs Stage `#0B0B0E`):**
 - Paper: **15.8:1** — AAA
@@ -148,7 +148,7 @@ Runs synchronously before paint — no flash of dark before light theme applies.
 
 ### 1.5 Study Mode — TTS + STT recite-and-transcribe layer
 
-**Goal:** Self-quizzing tool where ASIDE **reads questions aloud** (TTS) and **transcribes the user's spoken answer** (STT). Works on top of the existing `/api/quiz`, `/api/flashcards`, `/api/summary` endpoints — no backend changes needed.
+**Goal:** Self-quizzing tool where AsideMe **reads questions aloud** (TTS) and **transcribes the user's spoken answer** (STT). Works on top of the existing `/api/quiz`, `/api/flashcards`, `/api/summary` endpoints — no backend changes needed.
 
 **How it works (no new endpoints):**
 1. User opens Study panel, picks a topic, picks Quiz / Flashcards / Summary
@@ -207,7 +207,7 @@ curl -s http://localhost:3001/api/docs | python3 -c "import sys,json;d=json.load
 
 ```
 devlistenvv3new/
-├── ASIDE_FRONTEND_HANDOFF.md       ← THIS FILE
+├── AsideMe_FRONTEND_HANDOFF.md       ← THIS FILE
 ├── public/
 │   ├── index.html                  ← All UI changes (rebrand, palette, Library, polish, Study Mode)
 │   ├── favicon.svg                 ← em-dash mark, dark canvas, 32×32
@@ -215,7 +215,7 @@ devlistenvv3new/
 │   └── index.html.pre-*.bak        ← Backup chain (see §6)
 ├── server.js                       ← blockImages middleware, /api/docs filter, /teacher-docs + /ingested routes
 ├── ingest.js                       ← listDocTopics() now selects `path`
-└── ASIDE-studio-dark/              ← Sibling kit + scripts (in /Users/beatdump/Downloads/)
+└── AsideMe-studio-dark/              ← Sibling kit + scripts (in /Users/beatdump/Downloads/)
     ├── tokens.css                  ← Reference design tokens
     ├── landing.html
     ├── onboarding.html
@@ -226,7 +226,7 @@ devlistenvv3new/
 
 ---
 
-## 3. Migrating an unmodified ASIDE repo to ASIDE
+## 3. Migrating an unmodified AsideMe repo to AsideMe
 
 Order matters — the rebrand script depends on Studio Dark tokens being in place.
 
@@ -237,14 +237,14 @@ git checkout -b feat/aside-rebrand
 git status                           # should be clean
 
 # 1. Copy brand assets into public/
-cp ~/Downloads/ASIDE-studio-dark/favicon.svg public/
-cp ~/Downloads/ASIDE-studio-dark/mark.svg    public/
+cp ~/Downloads/AsideMe-studio-dark/favicon.svg public/
+cp ~/Downloads/AsideMe-studio-dark/mark.svg    public/
 
 # 2. Apply Studio Dark color migration (50 substitutions, atomic)
-python3 ~/Downloads/ASIDE-studio-dark/apply-studio-dark.py public/index.html
+python3 ~/Downloads/AsideMe-studio-dark/apply-studio-dark.py public/index.html
 
-# 3. Apply ASIDE rebrand (~55 substitutions, atomic, idempotent)
-python3 ~/Downloads/ASIDE-studio-dark/apply-aside-rebrand.py public/index.html
+# 3. Apply AsideMe rebrand (~55 substitutions, atomic, idempotent)
+python3 ~/Downloads/AsideMe-studio-dark/apply-aside-rebrand.py public/index.html
 
 # 4. Manually port these features that AREN'T in the scripts:
 #    a) Library modal — copy the CSS + HTML + IIFE from this repo's public/index.html
@@ -255,8 +255,8 @@ python3 ~/Downloads/ASIDE-studio-dark/apply-aside-rebrand.py public/index.html
 #    f) listDocTopics path selector in ingest.js (1 line)
 
 # 5. Verify
-grep -n "ASIDE\|JetBrains\|Syne" public/index.html   # → empty
-grep -n "<title>ASIDE\|class=\"logo\"\|favicon\.svg"  public/index.html   # → present
+grep -n "AsideMe\|JetBrains\|Syne" public/index.html   # → empty
+grep -n "<title>AsideMe\|class=\"logo\"\|favicon\.svg"  public/index.html   # → present
 
 # 6. Start the server and visit /
 node server.js                       # requires ANTHROPIC_API_KEY (server now exits if missing)
@@ -306,7 +306,7 @@ teacher-docs/
 ### 4.2 Integration commands
 
 ```sh
-# 1. Stage the trade docs into the ASIDE codebase
+# 1. Stage the trade docs into the AsideMe codebase
 mkdir -p teacher-docs/trades
 cp /Users/beatdump/Downloads/trade-psi-pack/.claude/skills/cross-jurisdiction-licensing-research/reference/psi-trade-exam-content/*.md teacher-docs/trades/
 
@@ -350,8 +350,8 @@ The existing `topic-card` renderer shows `unit / topic`. To get cleaner labels:
 
 | Script | Path | What it does | Safe to re-run? |
 |---|---|---|---|
-| `apply-studio-dark.py` | `~/Downloads/ASIDE-studio-dark/` | Color migration (14 tokens + 7 rgba + hex) | ✅ — already-migrated files produce 0 changes |
-| `apply-aside-rebrand.py` | `~/Downloads/ASIDE-studio-dark/` | Rename + fonts + logo HTML + favicon links | ✅ — pattern-based, no-ops on already-rebranded files |
+| `apply-studio-dark.py` | `~/Downloads/AsideMe-studio-dark/` | Color migration (14 tokens + 7 rgba + hex) | ✅ — already-migrated files produce 0 changes |
+| `apply-aside-rebrand.py` | `~/Downloads/AsideMe-studio-dark/` | Rename + fonts + logo HTML + favicon links | ✅ — pattern-based, no-ops on already-rebranded files |
 
 ### 5.2 Backup chain
 
@@ -474,8 +474,8 @@ CSS variables change but the file size stays similar, so some browsers serve sta
 Run all of these before declaring the migration complete:
 
 ### Visual
-- [ ] `<title>` reads **ASIDE**, not ASIDE
-- [ ] Header wordmark renders as em-dash + tracked-caps ASIDE (no ⚡ emoji)
+- [ ] `<title>` reads **AsideMe**, not AsideMe
+- [ ] Header wordmark renders as em-dash + tracked-caps AsideMe (no ⚡ emoji)
 - [ ] Background is near-black (`#0B0B0E`), not blue-black
 - [ ] CTAs (mic button, primary buttons) glow live-red, not cyan
 - [ ] Favicon shows red em-dash on near-black canvas
@@ -558,7 +558,7 @@ These are worth flagging but were not addressed:
 1. **`⚡` emoji in perf-timing chip** — at `public/index.html:2342`, used inside a JS template string for the millisecond badge (`⚡ ${ms}ms`). Brand rule says "no emoji as structural icons" but this is a functional indicator, not nav. Trivial to swap for an SVG bolt if you want full kit compliance.
 2. **Mark.svg for light surfaces** — the current SVG wordmarks are designed for dark canvases only. Add a light-canvas variant if you ever surface them on a light-theme page.
 3. **Rate-limit the Study Mode endpoints** — `/api/quiz`, `/api/flashcards`, `/api/summary` already share `quizLimiter` (15/min). With TTS/STT making sessions longer, consider bumping or adding per-IP analytics.
-4. **PWA manifest** — ASIDE has favicon + apple-touch-icon but no `manifest.json`. If installable home-screen is a goal, add one.
+4. **PWA manifest** — AsideMe has favicon + apple-touch-icon but no `manifest.json`. If installable home-screen is a goal, add one.
 5. **TTS voice picker** — currently auto-picks the first en-US voice. Add a dropdown if voice consistency matters across users.
 6. **Trade exam reference linking** — the trade `.md` files cite NFPA / IPC / NEC editions. Consider hyperlinking common citations to UpCodes or the SDO pages in a future ingest pass.
 
@@ -568,17 +568,17 @@ These are worth flagging but were not addressed:
 
 | Asset / decision | Where it lives |
 |---|---|
-| Brand kit (tokens, SVGs, reference HTML) | `~/Downloads/ASIDE-studio-dark/` |
+| Brand kit (tokens, SVGs, reference HTML) | `~/Downloads/AsideMe-studio-dark/` |
 | Migration scripts | Same as above (`apply-studio-dark.py`, `apply-aside-rebrand.py`) |
 | Trade datasets | `~/Downloads/trade-psi-pack/.claude/skills/cross-jurisdiction-licensing-research/reference/psi-trade-exam-content/` |
 | Trade research framework | `~/Downloads/trade-psi-pack/CLAUDE.md` |
-| Previous handoff (early draft) | `~/Downloads/trade-psi-pack/ASIDE_HANDOFF.md` (SUPERSEDED by this doc) |
+| Previous handoff (early draft) | `~/Downloads/trade-psi-pack/AsideMe_HANDOFF.md` (SUPERSEDED by this doc) |
 | Active codebase | `~/Downloads/devlistenvv3new/` (this file's root) |
 
 ---
 
 **Handoff complete.** A partner reading this top-to-bottom should be able to:
-1. Apply the same migration to any ASIDE clone in under 10 minutes
+1. Apply the same migration to any AsideMe clone in under 10 minutes
 2. Integrate the 8 trade exam datasets in under 5 minutes
 3. Verify the deploy against the §7 checklist before going live
 4. Roll back any layer cleanly via §8

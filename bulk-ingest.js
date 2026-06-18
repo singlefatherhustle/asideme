@@ -95,7 +95,7 @@ function fmtSize(bytes) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n${c('cyan','⚡')} ${c('bold','ASIDE Bulk Ingest')} ${c('dim','v3.1')}\n`);
+  console.log(`\n${c('cyan','⚡')} ${c('bold','AsideMe Bulk Ingest')} ${c('dim','v3.1')}\n`);
 
   // Lazy import DB (only loads SQLite when needed)
   const { db, docsCount, listDocTopics } = await import('./ingest.js').then(async m => {
@@ -251,7 +251,7 @@ async function main() {
   const elapsed = ((performance.now()-t0)/1000).toFixed(1);
   console.log(`\n${c('bold','Done in')} ${elapsed}s`);
   console.log(`  ${c('green','✓')} ${ok} indexed  ${c('yellow','–')} ${skip} skipped  ${c('red','✗')} ${fail} failed`);
-  if (ok > 0) console.log(`\n  ${c('cyan','💡')} Restart ASIDE or call ${c('bold','POST /api/ingest/reindex')} to make new docs searchable.`);
+  if (ok > 0) console.log(`\n  ${c('cyan','💡')} Restart AsideMe or call ${c('bold','POST /api/ingest/reindex')} to make new docs searchable.`);
 }
 
 main().catch(e => {

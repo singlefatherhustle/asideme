@@ -1,4 +1,4 @@
-# Adding new subjects to the ASIDE library
+# Adding new subjects to the AsideMe library
 
 Drop content in, run one command, it shows up in the library. This is the
 playbook for filling out the seed library — CPA, nursing NCLEX, OSHA 30, bar
@@ -25,7 +25,7 @@ ADMIN_EMAILS=you@example.com npm run reindex   # see "re-ingest" section below
 
 ## How the file path becomes a library folder
 
-ASIDE derives the folder name (the **unit**) and the sub-section name (the
+AsideMe derives the folder name (the **unit**) and the sub-section name (the
 **topic**) from the directory structure:
 
 ```
@@ -80,7 +80,7 @@ files need a manual nudge. Two ways:
 If you're an admin (your email is in `ADMIN_EMAILS` env var), POST to:
 
 ```sh
-curl -X POST https://aside.app/api/ingest/reindex \
+curl -X POST https://asideme.app/api/ingest/reindex \
   -H "Cookie: aside_session=<your-session-cookie>"
 ```
 
@@ -99,7 +99,7 @@ they'd get re-extracted (= API cost) for no reason.
 ## Subject ideas for filling out the library
 
 Aim for **5–15 docs per subject** for launch. Doesn't have to be exhaustive —
-you just want the folder to exist + have enough to demonstrate "yes, ASIDE
+you just want the folder to exist + have enough to demonstrate "yes, AsideMe
 knows about this subject."
 
 High-impact additions:
@@ -132,8 +132,8 @@ You won't be writing all of this from scratch. Options:
    - Wikipedia exam-prep articles (CC BY-SA — credit + link is OK)
    - Some state licensing boards publish their own study materials for free
 2. **Your own notes** if you've taken any of these exams
-3. **Have ASIDE help you** — once it's live, you can paste in your own
-   handbook and have ASIDE generate summaries, then save those summaries
+3. **Have AsideMe help you** — once it's live, you can paste in your own
+   handbook and have AsideMe generate summaries, then save those summaries
    back as study docs. Self-bootstrapping.
 
 **Don't:** copy from copyrighted exam-prep companies (Becker, UWorld, Kaplan)

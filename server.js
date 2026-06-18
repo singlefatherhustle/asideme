@@ -199,7 +199,7 @@ const app = express();
 app.set("trust proxy", parseInt(process.env.TRUST_PROXY_HOPS || "1", 10));
 
 // ── Security: helmet + CSP ────────────────────────────────────────────────────
-// CSP allows ASIDE's existing asset sources (Google Fonts, Prism CDN, our own
+// CSP allows AsideMe's existing asset sources (Google Fonts, Prism CDN, our own
 // Anthropic API for the WebSocket). HSTS is gated on production so localhost
 // devs can use http://. crossOriginEmbedderPolicy is disabled so CDN assets
 // continue to work in browsers that enforce COEP strictly.
@@ -231,7 +231,7 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: [
           "'self'",
-          "'unsafe-inline'", // ASIDE has inline scripts (theme bootstrap, SW reg, library)
+          "'unsafe-inline'", // AsideMe has inline scripts (theme bootstrap, SW reg, library)
           "https://cdnjs.cloudflare.com", // Prism
         ],
         // helmet's default is `script-src-attr 'none'`, which blocks every
@@ -274,14 +274,14 @@ app.use(
 );
 
 // Permissions-Policy: explicitly deny powerful browser APIs we don't use.
-// Microphone is allowed (self) because ASIDE records audio for transcription.
+// Microphone is allowed (self) because AsideMe records audio for transcription.
 app.use((req, res, next) => {
   res.setHeader(
     "Permissions-Policy",
     [
       'accelerometer=()',
       'autoplay=()',
-      'camera=()',                     // ASIDE never uses camera
+      'camera=()',                     // AsideMe never uses camera
       'cross-origin-isolated=()',
       'display-capture=()',
       'encrypted-media=()',
@@ -455,7 +455,7 @@ app.get("/manifest.webmanifest", (req, res, next) => {
 
 // ── Route topology ────────────────────────────────────────────────────────────
 //   /            → marketing landing page (public/landing/index.html)
-//   /app         → the actual ASIDE app shell (public/index.html)
+//   /app         → the actual AsideMe app shell (public/index.html)
 //   /pricing     → pricing landing page
 //   /manifesto   → manifesto / about page
 //   /welcome     → 301 redirect to / (back-compat with old links)
@@ -842,7 +842,7 @@ app.get("/verify", verifyLimiter, async (req, res) => {
   if (!user) {
     return res.status(400).send(`
       <!doctype html><html><head><meta charset="utf-8">
-      <title>Verification link invalid — ASIDE</title>
+      <title>Verification link invalid — AsideMe</title>
       <link rel="stylesheet" href="/landing/landing.css"></head>
       <body><div class="ambient"></div><div class="grain"></div>
       <main class="container" style="padding:120px 0;text-align:center">
@@ -1192,10 +1192,10 @@ app.post("/api/abuse-report-public", abuseLimiter, (req, res) => {
 });
 
 // POST /api/dmca-takedown — formal DMCA §512(c)(3) notice. Public, no auth
-// required (the copyright holder is usually not an ASIDE user).
+// required (the copyright holder is usually not an AsideMe user).
 // Required fields per 17 U.S.C. §512(c)(3)(A):
 //   - identity of copyrighted work
-//   - location of infringing material on ASIDE
+//   - location of infringing material on AsideMe
 //   - claimant contact info (name, email, address, phone)
 //   - good-faith statement
 //   - accuracy + penalty-of-perjury statement
@@ -2196,7 +2196,7 @@ process.on("uncaughtException", (err) => {
 });
 
 server.listen(PORT, async () => {
-  console.log(`\n⚡  ASIDE v3.1 → http://localhost:${PORT}\n`);
+  console.log(`\n⚡  AsideMe v3.1 → http://localhost:${PORT}\n`);
   logProviderStatus();
   logLlmProviderStatus();
   if (!NOTION_KEY)

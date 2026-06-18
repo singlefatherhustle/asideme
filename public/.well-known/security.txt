@@ -1,13 +1,13 @@
-# Responsible disclosure for ASIDE
+# Responsible disclosure for AsideMe
 # Found something? Please tell us. Bug bounties are not yet formalized,
 # but we credit responsible reporters in the changelog and respond fast.
 
-Contact: mailto:security@aside.app
-Contact: mailto:compliance@aside.app
+Contact: mailto:security@asideme.app
+Contact: mailto:compliance@asideme.app
 Expires: 2027-05-26T00:00:00Z
 Preferred-Languages: en
-Canonical: https://aside.app/.well-known/security.txt
-Policy: https://aside.app/landing/terms.html#5
+Canonical: https://asideme.app/.well-known/security.txt
+Policy: https://asideme.app/landing/terms.html#5
 
 # Please:
 # - Give us a reasonable window to fix before disclosing publicly.

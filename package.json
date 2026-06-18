@@ -1,7 +1,7 @@
 {
-  "name": "aside",
+  "name": "asideme",
   "version": "3.1.0",
-  "description": "ASIDE — full-featured live coding tutor",
+  "description": "AsideMe — full-featured live coding tutor",
   "type": "module",
   "main": "server.js",
   "scripts": {

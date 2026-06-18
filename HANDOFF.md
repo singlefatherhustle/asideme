@@ -1,8 +1,8 @@
-# ASIDE — Developer Handoff Guide
+# AsideMe — Developer Handoff Guide
 
 ## Project Overview
 
-**ASIDE** is a real-time AI coaching assistant that listens to live software engineering classes and generates smart, natural responses that students can say aloud to sound knowledgeable and engaged.
+**AsideMe** is a real-time AI coaching assistant that listens to live software engineering classes and generates smart, natural responses that students can say aloud to sound knowledgeable and engaged.
 
 **Key Philosophy**: Responses are generated for *spoken delivery*, not silent reading. The system provides direct answers, thoughtful follow-ups, observations, and questions that students can confidently speak in class.
 

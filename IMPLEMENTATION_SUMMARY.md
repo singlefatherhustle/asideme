@@ -1,4 +1,4 @@
-# ASIDE — Multi-Provider Speech-to-Text Implementation
+# AsideMe — Multi-Provider Speech-to-Text Implementation
 
 ## What's Changed ✅
 

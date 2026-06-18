@@ -43,7 +43,7 @@ export function sessionToMarkdown(sessionId) {
   md += `\n---\n\n`;
 
   // ── Live transcript ─────────────────────────────────────────────────
-  // The full lecture as ASIDE heard it, in chronological order. Skip the
+  // The full lecture as AsideMe heard it, in chronological order. Skip the
   // section entirely if no transcript was captured (e.g., chat-only session).
   if (transcripts.length) {
     md += `## Live Transcript\n\n`;

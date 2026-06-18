@@ -1,4 +1,4 @@
-# ASIDE — robots.txt
+# AsideMe — robots.txt
 # Allow public marketing + legal pages to be indexed.
 # Block the app shell, APIs, and per-user routes.
 
@@ -16,4 +16,4 @@ Disallow: /landing/demo.html
 Disallow: /sw.js
 Disallow: /manifest.webmanifest
 
-Sitemap: https://aside.app/sitemap.xml
+Sitemap: https://asideme.app/sitemap.xml

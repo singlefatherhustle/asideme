@@ -12,7 +12,7 @@
 import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || "ASIDE <noreply@aside.app>";
+const EMAIL_FROM = process.env.EMAIL_FROM || "AsideMe <noreply@asideme.app>";
 const APP_URL = process.env.APP_URL || "http://localhost:3001";
 
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
@@ -25,17 +25,17 @@ if (!RESEND_API_KEY && process.env.NODE_ENV === "production") {
 
 export async function sendMagicLink(email, token) {
   const link = `${APP_URL}/verify?token=${encodeURIComponent(token)}`;
-  const subject = "Verify your email to start your ASIDE trial";
+  const subject = "Verify your email to start your AsideMe trial";
   const text =
     `Hi —\n\n` +
-    `Click to verify your email and start your 48-hour ASIDE free trial:\n\n` +
+    `Click to verify your email and start your 48-hour AsideMe free trial:\n\n` +
     `${link}\n\n` +
     `This link expires in 30 minutes. If you didn't request this, ignore.\n\n` +
-    `— ASIDE`;
+    `— AsideMe`;
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#0a0a0a">
       <h1 style="font-size:24px;margin:0 0 18px">Verify your email</h1>
-      <p>Click below to verify and start your 48-hour ASIDE free trial:</p>
+      <p>Click below to verify and start your 48-hour AsideMe free trial:</p>
       <p style="margin:24px 0">
         <a href="${link}" style="display:inline-block;background:#FF3C4B;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:500">
           Verify and start trial →
@@ -45,7 +45,7 @@ export async function sendMagicLink(email, token) {
         This link expires in 30 minutes. If you didn't request this, ignore.
       </p>
       <hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/>
-      <p style="color:#9a948d;font-size:12px">ASIDE — live coding-class assistant</p>
+      <p style="color:#9a948d;font-size:12px">AsideMe — live coding-class assistant</p>
     </div>
   `;
   if (!resend) {

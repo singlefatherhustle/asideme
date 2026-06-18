@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * gen-pwa-icons.mjs — generate ASIDE-branded PNG icons for the PWA manifest.
+ * gen-pwa-icons.mjs — generate AsideMe-branded PNG icons for the PWA manifest.
  *
- * Renders the ASIDE mark (em-dash on near-black) into raw RGBA, then writes
+ * Renders the AsideMe mark (em-dash on near-black) into raw RGBA, then writes
  * a valid PNG using only Node's built-in zlib. No image library dependency.
  *
  * Outputs into public/icons/:
@@ -23,7 +23,7 @@ const OUT_DIR = join(__dirname, "..", "public", "icons");
 
 // ── Brand colors (from public/mark.svg) ──────────────────────────────────────
 const BG = [0x0b, 0x0b, 0x0e, 0xff]; // stage / near-black
-const FG = [0xff, 0x3c, 0x4b, 0xff]; // ASIDE accent red
+const FG = [0xff, 0x3c, 0x4b, 0xff]; // AsideMe accent red
 
 // ── CRC32 (PNG spec) ─────────────────────────────────────────────────────────
 const CRC_TABLE = (() => {

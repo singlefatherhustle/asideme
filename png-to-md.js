@@ -196,7 +196,7 @@ function getIcon(ext) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n${c('cyan','⚡')} ${c('bold','ASIDE — Image/PDF → Markdown Converter')}\n`);
+  console.log(`\n${c('cyan','⚡')} ${c('bold','AsideMe — Image/PDF → Markdown Converter')}\n`);
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) {

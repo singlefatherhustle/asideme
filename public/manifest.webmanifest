@@ -1,6 +1,6 @@
 {
-  "name": "ASIDE",
-  "short_name": "ASIDE",
+  "name": "AsideMe",
+  "short_name": "AsideMe",
   "description": "Live teaching assistant — capture audio, transcribe in real time, ask Claude about what was just taught.",
   "id": "/app",
   "start_url": "/app",
