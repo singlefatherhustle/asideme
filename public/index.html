@@ -4715,7 +4715,13 @@
             const res = await fetch(`${BASE}/api/chat`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sessionId, message: rawText }),
+              // In push-to-ask mode the user deliberately asked, so tell the
+              // server to skip the classify round-trip (faster answers).
+              body: JSON.stringify({
+                sessionId,
+                message: rawText,
+                explicit: mode === "push",
+              }),
             });
             if (!res.ok) {
               const e = await res.json().catch(() => ({}));

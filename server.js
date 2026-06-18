@@ -1865,26 +1865,30 @@ app.post("/api/chat", chatLimiter, requireActiveAccess, async (req, res) => {
     return;
   }
 
-  // 1. Classify
-  send("status", { stage: "classifying" });
-  let clf;
-  try {
-    clf = await classify(llm, message);
-  } catch (err) {
-    // SSE headers are already sent, so the Express error handler can't respond
-    // — surface the failure on the stream and close, or the client hangs.
-    console.error("Classify error:", err.message);
-    send("error", { message: "Generation failed. Try again." });
-    res.end();
-    return;
+  // 1. Classify — skipped for explicit asks (push-to-talk), where the user
+  //    deliberately asked: nothing to filter and the query is already clean.
+  //    Saves a full LLM round-trip (~0.5–0.7s).
+  let cleanQuery = message;
+  if (!req.body.explicit) {
+    send("status", { stage: "classifying" });
+    let clf;
+    try {
+      clf = await classify(llm, message);
+    } catch (err) {
+      // SSE headers are already sent, so the Express error handler can't respond
+      // — surface the failure on the stream and close, or the client hangs.
+      console.error("Classify error:", err.message);
+      send("error", { message: "Generation failed. Try again." });
+      res.end();
+      return;
+    }
+    if (!clf.answer) {
+      send("filtered", { reason: clf.reason, original: message });
+      res.end();
+      return;
+    }
+    cleanQuery = clf.query || message;
   }
-  if (!clf.answer) {
-    send("filtered", { reason: clf.reason, original: message });
-    res.end();
-    return;
-  }
-
-  const cleanQuery = clf.query || message;
   const tags = extractTags(cleanQuery);
 
   // 2. Duplicate check
