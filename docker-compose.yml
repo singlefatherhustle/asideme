@@ -16,7 +16,11 @@ services:
       - DATABASE_PATH=/data/devlisten.db
       - APP_URL=https://asideme.app
       - CORS_ORIGIN=https://asideme.app
-      - REQUIRE_EMAIL_VERIFICATION=true
+      # Email verification temporarily disabled: Resend (RESEND_API_KEY) is not
+      # configured yet, so magic links can't be delivered. With this false, the
+      # signup form surfaces the verify link on-page so login works without email.
+      # Re-enable (set true) once the asideme.app domain is verified in Resend.
+      - REQUIRE_EMAIL_VERIFICATION=false
       # Caddy is the single proxy hop in front of the app.
       - TRUST_PROXY_HOPS=1
     volumes:
