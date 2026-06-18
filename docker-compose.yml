@@ -16,14 +16,12 @@ services:
       - DATABASE_PATH=/data/devlisten.db
       - APP_URL=https://asideme.app
       - CORS_ORIGIN=https://asideme.app
-      # Speech-to-text provider. Whisper (OpenAI) — buffers mic audio into
-      # ~4s chunks and transcribes each via whisper-1. This is the setup the
-      # owner ran successfully on the previous build. Needs OPENAI_API_KEY,
-      # which lives in .env (never committed). If Whisper errors, the client
-      # degrades to the browser's built-in SpeechRecognition for that session.
-      - TRANSCRIPTION_PROVIDER=whisper
-      # Seconds of audio per Whisper request (lower = snappier, more API calls).
-      - WHISPER_CHUNK_SECONDS=4
+      # Speech-to-text provider. Google Cloud Speech-to-Text v2 — keyless auth
+      # via the GCE metadata server, free-tier friendly, cross-browser. Whisper
+      # (OpenAI) is also wired up and ready; switch TRANSCRIPTION_PROVIDER=whisper
+      # once the OpenAI account has billing credits (the key currently returns
+      # insufficient_quota). Client degrades to browser SpeechRecognition on error.
+      - TRANSCRIPTION_PROVIDER=google
       # Email verification temporarily disabled: Resend (RESEND_API_KEY) is not
       # configured yet, so magic links can't be delivered. With this false, the
       # signup form surfaces the verify link on-page so login works without email.
