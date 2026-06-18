@@ -1,5 +1,5 @@
 /**
- * websearch.js — Web search and URL fetching for DevListen
+ * websearch.js — Web search and URL fetching for ASIDE
  *
  * Two capabilities:
  *
@@ -113,20 +113,49 @@ export async function fetchUrl(url) {
   }
 
   // SSRF: resolve and verify the host is in public IP space.
+  // KNOWN LIMITATION (DNS-rebinding TOCTOU): we validate the IP at lookup() time,
+  // but fetch() re-resolves the hostname independently, so a hostile resolver with
+  // a sub-second TTL could flip to an internal IP between this check and connect.
+  // Full mitigation requires resolving once and connecting to the validated IP via
+  // a custom undici dispatcher (e.g. request-filtering-agent) — tracked as follow-up.
+  // The redirect loop below DOES re-validate each hop, closing the redirect-based bypass.
   await assertPublicHost(parsed.hostname);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
   try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      redirect: 'follow', // Browser-equivalent; max 20 redirects in undici default
-      headers: {
-        'User-Agent': 'ASIDE/3.1 (educational tool)',
-        'Accept': 'text/html,application/xhtml+xml,text/plain',
-      },
-    });
+    // SSRF: follow redirects MANUALLY and re-validate every hop's host. Auto-follow
+    // would let a public URL 30x-redirect to a private/loopback/metadata address.
+    const MAX_REDIRECTS = 5;
+    let currentUrl = url;
+    let res;
+    for (let hop = 0; ; hop++) {
+      res = await fetch(currentUrl, {
+        signal: controller.signal,
+        redirect: 'manual',
+        headers: {
+          'User-Agent': 'ASIDE/3.1 (educational tool)',
+          'Accept': 'text/html,application/xhtml+xml,text/plain',
+        },
+      });
+      const location = res.headers.get('location');
+      if (res.status >= 300 && res.status < 400 && location) {
+        if (hop >= MAX_REDIRECTS) throw new Error('Too many redirects');
+        let next;
+        try { next = new URL(location, currentUrl); } catch (_) {
+          throw new Error('Invalid redirect Location');
+        }
+        if (!['http:', 'https:'].includes(next.protocol)) {
+          throw new Error('Redirect to non-http(s) scheme blocked');
+        }
+        await assertPublicHost(next.hostname); // re-validate the redirect target
+        try { await res.body?.cancel(); } catch (_) { /* drain */ }
+        currentUrl = next.toString();
+        continue;
+      }
+      break;
+    }
     clearTimeout(timeout);
 
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);

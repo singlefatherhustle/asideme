@@ -3729,8 +3729,9 @@
             <p class="settings-desc">
               ASIDE runs on a <strong>free built-in AI</strong> by default. Add
               your own API key to run on your own provider with a higher daily
-              limit — your key is encrypted at rest, never shared, and never
-              leaves the server.
+              limit — your key is encrypted at rest, never shown to anyone, and
+              used only server-side to call your chosen AI provider (it is never
+              exposed to the browser or to other users).
             </p>
             <p
               class="settings-desc"
@@ -3748,6 +3749,7 @@
                 type="password"
                 autocomplete="off"
                 spellcheck="false"
+                aria-label="Your AI provider API key"
                 placeholder="Paste your API key"
                 style="display: none"
               />
@@ -4605,8 +4607,17 @@
               body: JSON.stringify({ sessionId, message: rawText }),
             });
             if (!res.ok) {
-              const e = await res.json();
-              setQaError(qa, e.error || res.statusText);
+              const e = await res.json().catch(() => ({}));
+              if (e.action === "add_your_own_key" || e.error === "free_cap_reached") {
+                const msg =
+                  e.message ||
+                  "Add your own free API key in Settings to keep going.";
+                setQaError(qa, msg);
+                showToast(msg);
+                if (typeof openSettingsModal === "function") openSettingsModal();
+              } else {
+                setQaError(qa, e.message || e.error || res.statusText);
+              }
               return;
             }
             const reader = res.body.getReader();
@@ -4626,6 +4637,16 @@
                 if (!line.startsWith("data:")) continue;
                 try {
                   const obj = JSON.parse(line.slice(5));
+                  if (obj.message) {
+                    // server "error" SSE event — surface it, and nudge to
+                    // Settings when the fix is "add your own key".
+                    setQaError(qa, obj.message);
+                    if (obj.action === "add_your_own_key") {
+                      showToast(obj.message);
+                      if (typeof openSettingsModal === "function") openSettingsModal();
+                    }
+                    return;
+                  }
                   if (obj.stage === "classifying")
                     document.getElementById("streamLabel").textContent =
                       "classifying...";
@@ -4733,7 +4754,7 @@
           qa.classList.remove("active");
           const foot = document.createElement("div");
           foot.className = "qa-foot";
-          foot.innerHTML = `<span>${new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span><span class="ms-tag">⚡ ${ms}ms</span>${tags.map((t) => `<span class="tag">${t}</span>`).join("")}<button class="dismiss-btn">✕</button>`;
+          foot.innerHTML = `<span>${new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span><span class="ms-tag">⚡ ${ms}ms</span>${tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}<button class="dismiss-btn">✕</button>`;
           foot
             .querySelector(".dismiss-btn")
             .addEventListener("click", () => qa.classList.add("dismissed"));
@@ -5582,40 +5603,57 @@
         }
 
         function renderMd(text) {
-          text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-            // Lazy-load Prism the first time any code block renders.
-            // Prism.highlightAll() will sweep + colorize once loaded.
-            if (lang && typeof window.loadPrism === "function") {
-              try {
-                window.loadPrism();
-              } catch (e) {
-                console.warn("loadPrism trigger failed:", e && e.message);
+          // SECURITY: the model's output is untrusted (it can be steered by a
+          // poisoned transcript, RAG doc, or prompt injection). We HTML-escape
+          // everything first so any injected markup is inert, and only introduce
+          // our own safe tags afterwards. Fenced code blocks are pulled out
+          // before escaping (Prism.highlight produces its own safe markup) and
+          // re-inserted via placeholders at the end.
+          const blocks = [];
+          let t = String(text).replace(
+            /```(\w*)\n?([\s\S]*?)```/g,
+            (_, lang, code) => {
+              if (lang && typeof window.loadPrism === "function") {
+                try {
+                  window.loadPrism();
+                } catch (e) {
+                  console.warn("loadPrism trigger failed:", e && e.message);
+                }
               }
-            }
-            let h = esc(code.trim());
-            try {
-              if (lang && typeof Prism !== "undefined" && Prism.languages[lang])
-                h = Prism.highlight(code.trim(), Prism.languages[lang], lang);
-            } catch (e) {
-              // Highlighting is purely cosmetic — fall back to escaped text.
-              console.warn("Prism.highlight failed:", e && e.message);
-            }
-            return `<pre class="language-${lang}"><code class="language-${lang}">${h}</code></pre>`;
-          });
-          text = text.replace(/`([^`\n]+)`/g, (_, c) => `<code>${esc(c)}</code>`);
-          text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-          text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
-          text = text.replace(/^[-•]\s+(.+)$/gm, "<li>$1</li>");
-          text = text.replace(/(<li>.*<\/li>(\n|$))+/g, (m) => `<ul>${m}</ul>`);
-          return text
+              let h = esc(code.trim());
+              try {
+                if (lang && typeof Prism !== "undefined" && Prism.languages[lang])
+                  h = Prism.highlight(code.trim(), Prism.languages[lang], lang);
+              } catch (e) {
+                // Highlighting is purely cosmetic — fall back to escaped text.
+                console.warn("Prism.highlight failed:", e && e.message);
+              }
+              const safeLang = esc(lang || "");
+              blocks.push(
+                `<pre class="language-${safeLang}"><code class="language-${safeLang}">${h}</code></pre>`,
+              );
+              return `CB${blocks.length - 1}`;
+            },
+          );
+          // Escape ALL remaining text — neutralizes any HTML/JS in the model output.
+          t = esc(t);
+          // Inline markdown on the now-escaped text (only our own tags introduced).
+          t = t.replace(/`([^`\n]+)`/g, (_, c) => `<code>${c}</code>`); // c already escaped
+          t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+          t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
+          t = t.replace(/^[-•]\s+(.+)$/gm, "<li>$1</li>");
+          t = t.replace(/(<li>.*<\/li>(\n|$))+/g, (m) => `<ul>${m}</ul>`);
+          let html = t
             .split(/\n\n+/)
             .map((p) => {
               p = p.trim();
               if (!p) return "";
-              if (p.startsWith("<pre>") || p.startsWith("<ul>")) return p;
+              if (p.startsWith("<ul>") || /^CB\d+$/.test(p)) return p;
               return `<p>${p.replace(/\n/g, "<br>")}</p>`;
             })
             .join("");
+          // Re-insert the (safe) code-block HTML.
+          return html.replace(/CB(\d+)/g, (_, i) => blocks[Number(i)] || "");
         }
         function esc(s) {
           return String(s)

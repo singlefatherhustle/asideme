@@ -193,6 +193,10 @@ if (ANTHROPIC_KEY) {
 }
 
 const app = express();
+// Behind a reverse proxy (Fly.io = 1 hop), trust the proxy's X-Forwarded-For so
+// rate limiters key on the real client IP, not the single proxy IP. A precise hop
+// count (not `true`) keeps XFF non-spoofable — express-rate-limit rejects `true`.
+app.set("trust proxy", parseInt(process.env.TRUST_PROXY_HOPS || "1", 10));
 
 // ── Security: helmet + CSP ────────────────────────────────────────────────────
 // CSP allows ASIDE's existing asset sources (Google Fonts, Prism CDN, our own
@@ -1542,8 +1546,12 @@ app.post("/api/flashcards/download/pdf", quizLimiter, requireActiveAccess, async
   }
 });
 
-app.post("/api/detect-topic", apiLimiter, async (req, res) => {
+app.post("/api/detect-topic", apiLimiter, requireActiveAccess, async (req, res) => {
   const { transcript } = req.body;
+  // Bound input: detectCurrentTopic only uses the first 300 chars anyway.
+  if (typeof transcript !== "string" || transcript.length > 4096) {
+    return res.status(400).json({ error: "transcript must be a string under 4KB" });
+  }
   const result = await detectCurrentTopic(resolveProvider(req.user), transcript);
   res.json(result || { unit: null, topic: null, confidence: 0 });
 });

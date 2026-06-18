@@ -7,7 +7,10 @@
 import crypto from "crypto";
 
 const SECRET = process.env.KEY_ENC_SECRET || "";
-const MIN_SECRET_LEN = 16;
+const MIN_SECRET_LEN = 32;
+// Fixed salt: derivation must be deterministic so stored keys can be decrypted
+// later. KEY_ENC_SECRET supplies the entropy; scrypt supplies the stretching.
+const KDF_SALT = "aside.byok.kdf.v1";
 
 function deriveKey() {
   if (!SECRET || SECRET.length < MIN_SECRET_LEN) {
@@ -16,8 +19,12 @@ function deriveKey() {
         "Set it in .env to enable encrypted BYOK key storage."
     );
   }
-  // SHA-256 yields a stable 32-byte key for AES-256 from any-length secret.
-  return crypto.createHash("sha256").update(SECRET, "utf8").digest();
+  // scrypt key-stretching → stable 32-byte AES-256 key. A fixed salt keeps
+  // derivation deterministic (required to decrypt later); the entropy comes from
+  // KEY_ENC_SECRET. scrypt makes brute-forcing a weak secret far costlier than a
+  // bare hash would. (No migration risk: changing the KDF only matters if keys
+  // were already stored — verified zero at rollout.)
+  return crypto.scryptSync(SECRET, KDF_SALT, 32);
 }
 
 /**

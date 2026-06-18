@@ -301,15 +301,20 @@ export function effectiveDailyCap(user) {
 
 export function consumeDailyCall(user, cap = DAILY_GENERATION_CAP) {
   rolloverDailyIfNeeded(user);
-  if (user.daily_calls >= cap) {
+  // Atomic check-and-increment: the WHERE guard prevents a race where two
+  // concurrent requests both pass a separate read and exceed the cap.
+  const r = db
+    .prepare(
+      "UPDATE users SET daily_calls = daily_calls + 1 WHERE id = ? AND daily_calls < ?",
+    )
+    .run(user.id, cap);
+  if (r.changes === 0) {
     return { ok: false, reason: "daily_cap", remaining: 0, cap };
   }
-  db.prepare(
-    "UPDATE users SET daily_calls = daily_calls + 1 WHERE id = ?",
-  ).run(user.id);
+  user.daily_calls += 1;
   return {
     ok: true,
-    remaining: cap - (user.daily_calls + 1),
+    remaining: Math.max(0, cap - user.daily_calls),
     cap,
   };
 }

@@ -47,6 +47,11 @@ export const PROVIDERS = {
 export const DEFAULT_LLM_PROVIDER = process.env.DEFAULT_LLM_PROVIDER || "gemini";
 export const FALLBACK_LLM_PROVIDER = process.env.FALLBACK_LLM_PROVIDER || "groq";
 
+// Request timeouts so an unresponsive provider can't hang a connection
+// indefinitely (resource-exhaustion / DoS guard).
+const COMPLETE_TIMEOUT_MS = parseInt(process.env.LLM_TIMEOUT_MS || "30000", 10);
+const STREAM_TIMEOUT_MS = parseInt(process.env.LLM_STREAM_TIMEOUT_MS || "120000", 10);
+
 export function isProvider(p) {
   return typeof p === "string" && Object.prototype.hasOwnProperty.call(PROVIDERS, p);
 }
@@ -138,10 +143,12 @@ function buildRequest(provider, apiKey, { system, messages, maxTokens, temperatu
       parts: [{ text: m.content }],
     }));
     const verb = stream ? "streamGenerateContent" : "generateContent";
-    const qs = stream ? "?alt=sse&key=" : "?key=";
+    const qs = stream ? "?alt=sse" : "";
     return {
-      url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:${verb}${qs}${encodeURIComponent(apiKey)}`,
-      headers: { "Content-Type": "application/json" },
+      // Key goes in the x-goog-api-key header, NOT the URL — so it can never end
+      // up in an access log, error message, or any URL-derived string.
+      url: `https://generativelanguage.googleapis.com/v1beta/models/${model}:${verb}${qs}`,
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: {
         ...(system ? { system_instruction: { parts: [{ text: system }] } } : {}),
         contents,
@@ -239,7 +246,12 @@ export async function completeText({ provider, apiKey, system, messages, maxToke
     temperature,
     stream: false,
   });
-  const resp = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+  const resp = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(COMPLETE_TIMEOUT_MS),
+  });
   if (!resp.ok) {
     const errText = await resp.text().catch(() => "");
     throw new Error(`[llm:${provider}] HTTP ${resp.status}: ${errText.slice(0, 300)}`);
@@ -262,7 +274,12 @@ export async function streamChat({ provider, apiKey, system, messages, maxTokens
     temperature,
     stream: true,
   });
-  const resp = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+  const resp = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(STREAM_TIMEOUT_MS),
+  });
   if (!resp.ok || !resp.body) {
     const errText = await resp.text().catch(() => "");
     throw new Error(`[llm:${provider}] HTTP ${resp.status}: ${errText.slice(0, 300)}`);
