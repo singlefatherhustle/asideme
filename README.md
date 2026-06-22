@@ -1,6 +1,6 @@
-# DevListen v3 — Real-Time AI Tutor for Live Classes
+# AsideMe — Real-Time AI Class & Certification-Prep Assistant
 
-DevListen is a full-featured AI coaching assistant that listens to live software engineering classes, generates smart responses students can say out loud, and indexes course materials for RAG-powered teaching.
+AsideMe is a full-featured AI coaching assistant that listens to live software engineering classes, generates smart responses students can say out loud, and indexes course materials for RAG-powered teaching.
 
 ## Features
 
@@ -20,7 +20,7 @@ DevListen is a full-featured AI coaching assistant that listens to live software
   - **Claude Haiku 4.5** — ultra-fast inference (< 1s per response)
 
 ### 📚 Knowledge Base Management
-- **Automatic Indexing** — drop PDFs, images, code files, and DevListen indexes them with Claude Vision
+- **Automatic Indexing** — drop PDFs, images, code files, and AsideMe indexes them with Claude Vision
 - **Smart RAG** — retrieves only relevant context from docs + session history
 - **Web Integration** — auto-fetch and index URLs mentioned in class (npm, GitHub, MDN, etc.)
 
@@ -28,7 +28,7 @@ DevListen is a full-featured AI coaching assistant that listens to live software
 - **Quiz Generator** — auto-generate quizzes from indexed material
 - **Flashcards** — spaced repetition for key concepts
 - **Topic Summary** — extract vocabulary, key concepts, exercises
-- **Topic Detection** — DevListen knows what unit/topic is being taught
+- **Topic Detection** — AsideMe knows what unit/topic is being taught
 
 ### 💾 Session Management
 - **Auto-Title** — generates session names after 6+ Q&As
@@ -279,7 +279,7 @@ See `.env.example` for all options + setup instructions.
 ## Usage Examples
 
 ### Automatic Indexing on Startup
-DevListen auto-indexes `teacher-docs/` when the server starts:
+AsideMe auto-indexes `teacher-docs/` when the server starts:
 
 ```bash
 teacher-docs/
@@ -301,12 +301,12 @@ These 203 docs are now searchable by the AI when answering.
 ### Generate Quiz
 1. Click **📝 Quiz me**
 2. Pick a topic (auto-detected from indexed material)
-3. DevListen generates 5 auto-graded questions
+3. AsideMe generates 5 auto-graded questions
 4. See explanations for wrong answers
 
 ### Export to Notion
 1. Click **↗ Notion** after a session
-2. DevListen syncs the entire Q&A and transcript to your Notion workspace
+2. AsideMe syncs the entire Q&A and transcript to your Notion workspace
 3. Auto-tagged with topics and response times
 
 ### Switch STT Providers
@@ -522,7 +522,7 @@ devlisten-v3/
 1. **Click the microphone** or **hold Space** to start recording
 2. Say your question naturally
 3. Release to send
-4. DevListen listens to the teacher, understands context, and streams a response
+4. AsideMe listens to the teacher, understands context, and streams a response
 5. Read the response aloud in class
 
 ### Uploading Course Materials
@@ -598,7 +598,7 @@ Real-time transcription via `/transcribe`:
 
 ## System Prompt
 
-DevListen generates responses using this instruction:
+AsideMe generates responses using this instruction:
 
 > You are a real-time coaching assistant listening to a live software engineering class.
 > Your ONLY job is to generate a smart, natural response that the STUDENT can say out loud.
@@ -746,7 +746,7 @@ See **[HANDOFF.md](./HANDOFF.md)** for:
 
 ## License
 
-Proprietary — DevListen v3
+Proprietary — AsideMe
 
 ## Contact
 
