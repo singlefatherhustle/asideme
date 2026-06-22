@@ -217,30 +217,41 @@ Repeat
 
 ---
 
-## Files
+## Project Structure
 
-### Core
-- `server.js` — Express server + WebSocket + SSE endpoints
-- `transcription-provider.js` — STT abstraction (7 providers)
-- `db.js` — SQLite database (sessions, messages, transcripts)
-- `rag.js` — Vector search + duplicate detection
-- `ingest.js` — Document ingestion (PDFs, images, markdown)
-- `classifier.js` — Question classification + off-topic filtering
-
-### Learning Tools
-- `quiz.js` — Quiz + flashcard + summary generation
-- `vocab.js` — Deepgram keyword hints
-- `websearch.js` — Real-time web search integration
-
-### Frontend
-- `public/index.html` — Full single-page app (styles + logic)
-
-### Data
-- `.env` — Configuration (API keys, model selection)
-- `.env.example` — Template with all options
-- `teacher-docs/` — Your course materials (auto-indexed on startup)
-- `ingested/` — User-uploaded files
-- `devlisten.db` — SQLite database (sessions + messages)
+```
+devlisten-v3/
+├── server.js                    # Main server + WebSocket + SSE endpoints
+├── public/index.html            # Single-page app (styles + logic, 2745 lines)
+│
+├── Database & Storage
+│   ├── db.js                    # SQLite sessions & messages
+│   └── devlisten.db             # Auto-created on first run
+│
+├── AI & Knowledge
+│   ├── rag.js                   # Document retrieval + duplicate detection
+│   ├── classifier.js            # Topic detection + off-topic filtering
+│   ├── quiz.js                  # Quiz/flashcard/summary generation
+│   ├── websearch.js             # Real-time web search
+│   └── ingest.js                # Document indexing (PDFs, images, markdown)
+│
+├── Audio & Transcription
+│   ├── transcription-provider.js # STT abstraction (7 providers)
+│   └── vocab.js                 # Deepgram keyword hints
+│
+├── Content
+│   ├── teacher-docs/            # Course materials (auto-indexed on startup)
+│   └── ingested/                # User-uploaded files / indexed cache
+│
+├── Config
+│   ├── .env                     # API keys, model selection
+│   └── .env.example             # Template with all options
+│
+└── Scripts
+    ├── png-to-md.js             # Convert PNG slides to markdown
+    ├── bulk-ingest.js           # Batch index documents
+    └── export.js                # Export sessions
+```
 
 ---
 
@@ -294,9 +305,16 @@ These 203 docs are now searchable by the AI when answering.
 
 ### Upload During Session
 1. Click **⬆ Upload** in the UI
-2. Drop a PDF, image, or code file
+2. Drop a PDF, image, or code file (`.md`, `.pdf`, `.js`, `.py`, `.sql`, `.json`, `.txt`, `.png`, `.jpg`)
 3. Claude Vision automatically extracts content
 4. Document is indexed into RAG within seconds
+
+### Answering Questions in Class
+1. **Click the microphone** or **hold Space** to start recording
+2. Say your question naturally
+3. Release to send
+4. AsideMe listens to the teacher, understands context, and streams a response
+5. Read the response aloud in class
 
 ### Generate Quiz
 1. Click **📝 Quiz me**
@@ -322,29 +340,89 @@ No code changes needed — provider switching is seamless.
 
 ---
 
-## Troubleshooting
+## API Endpoints
 
-### "Cannot connect to microphone"
-- Check browser permissions (allow microphone)
-- Try `TRANSCRIPTION_PROVIDER=browser` (no API key needed)
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/session` | Create new session |
+| GET | `/api/docs` | Get indexed docs count & topics |
+| POST | `/api/message` | Add question to session |
+| GET | `/api/messages/:id` | Get all Q&A pairs |
+| POST | `/api/ingest` | Upload & index files |
+| POST | `/api/quiz` | Generate quiz |
+| POST | `/api/export/markdown` | Export session |
+| WS | `/transcribe` | Real-time speech-to-text |
 
-### "Missing API key for Deepgram"
-- `cp .env.example .env`
-- Add your key to `DEEPGRAM_API_KEY=`
-- Restart: `npm start`
+### WebSocket Events
 
-### "No docs indexed"
-- Check `teacher-docs/` exists and has files
-- Manually ingest: `npm run ingest`
-- See console for parsing errors
+Real-time transcription via `/transcribe`:
 
-### "SSE connection drops"
-- Check DevTools Network tab for errors
-- Verify `ANTHROPIC_API_KEY` is valid
-- Check rate limits (30 questions/min)
+```json
+{
+  "type": "interim",
+  "transcript": "What is a closure in JavaScr...",
+  "speaker": 0
+}
+```
 
-### "Provider not working"
-See `transcription-provider.js` for detailed setup per provider.
+```json
+{
+  "type": "final",
+  "transcript": "What is a closure in JavaScript?",
+  "speaker": 0
+}
+```
+
+```json
+{
+  "type": "utterance_end"
+}
+```
+
+---
+
+## System Prompt
+
+AsideMe generates responses using this instruction:
+
+> You are a real-time coaching assistant listening to a live software engineering class.
+> Your ONLY job is to generate a smart, natural response that the STUDENT can say out loud.
+> VOICE & TONE: First person, natural spoken cadence, 1–3 sentences max, mirror teacher's vocabulary.
+> KNOWLEDGE PRIORITY: 1) Course material, 2) Web search results, 3) Your own knowledge.
+
+[See HANDOFF.md for full prompt details]
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| **SPACE** (hold) | Push-to-ask mode |
+| **D** | Dismiss last answer |
+| **?** | Show keyboard shortcuts |
+| **ESC** | Close modal |
+
+---
+
+## Transcription Options
+
+### Built-in (Default)
+- Uses browser Web Speech API
+- No API keys needed
+- Captures room audio only
+- Good for testing
+
+### Deepgram (Recommended)
+- Set `DEEPGRAM_API_KEY` in `.env`
+- Server auto-detects and uses Deepgram WebSocket
+- Much higher accuracy
+- Falls back to Web Speech if configured incorrectly
+
+### BlackHole (macOS only)
+- Captures audio directly from Zoom
+- Requires installation: see app's BlackHole setup guide
+- Best for recording calls without ambient noise
 
 ---
 
@@ -352,28 +430,21 @@ See `transcription-provider.js` for detailed setup per provider.
 
 ### Watch Mode (auto-restart)
 ```bash
-npm run dev
+npm run dev          # Auto-restarts on file changes (nodemon)
 ```
 
 ### Ingest Course Materials
 ```bash
-# Auto-ingest teacher-docs + ingested/
-npm run ingest
-
-# Ingest specific folder
-npm run ingest:week1
+npm run ingest          # Auto-ingest teacher-docs + ingested/
+npm run ingest:slides   # Index slide folder
+npm run ingest:week1    # Ingest specific folder
+npm run convert:all     # Convert PNG slides to markdown first
 ```
 
 ### Check Indexed Docs
 ```bash
 npm run stats     # Count docs + topics
 npm run list      # List all docs
-```
-
-### View Database
-```bash
-# Use any SQLite client (e.g., sqlite-web, VS Code SQLite extension)
-open devlisten.db
 ```
 
 ---
@@ -399,6 +470,34 @@ TRANSCRIPTION_PROVIDER=deepgram  # Choose one stable provider
 # Backup SQLite DB regularly
 cp devlisten.db devlisten-$(date +%Y%m%d).db.bak
 ```
+
+---
+
+## Performance
+
+- **Response Time**: ~1–3 seconds (Claude API)
+- **DB Size**: ~1MB per 100 sessions
+- **Memory**: ~80MB baseline (Node + SQLite)
+- **Connections**: 1 WebSocket per client
+
+## Rate Limiting
+
+Endpoints have built-in rate limits:
+- **Chat**: 30 requests/min
+- **Ingest**: 20 uploads/min
+- **Quiz**: 15 requests/min
+- **Localhost exemption**: 127.0.0.1, ::1 bypass limits
+
+## Export Options
+
+### Markdown
+- Exports full session transcript with Q&A pairs and timestamps
+- Preserves formatting — suitable for archives
+
+### Notion
+- Exports to configured Notion database (one entry per session)
+- Includes session metadata (stats, tags)
+- Requires API credentials
 
 ---
 
@@ -429,6 +528,45 @@ cp devlisten.db devlisten-$(date +%Y%m%d).db.bak
 
 ---
 
+## Troubleshooting
+
+### "Cannot connect to microphone"
+- Check browser permissions (allow microphone)
+- Try `TRANSCRIPTION_PROVIDER=browser` (no API key needed)
+
+### "Missing API key" / API key errors
+- `cp .env.example .env`
+- Add your key to `DEEPGRAM_API_KEY=` and `ANTHROPIC_API_KEY=`
+- Verify it's set: `echo $ANTHROPIC_API_KEY`
+- Restart: `npm start`
+
+### "No docs indexed" / documents not indexing
+- Check `teacher-docs/` exists and has files: `ls -la teacher-docs/`
+- Manually ingest: `npm run ingest`
+- Check console / `npm run stats` for parsing errors
+
+### "Server won't start"
+```bash
+# Check if port 3001 is in use
+lsof -i :3001
+# Kill existing process
+pkill -f "node server.js"
+```
+
+### "SSE connection drops"
+- Check DevTools Network tab for errors
+- Verify `ANTHROPIC_API_KEY` is valid
+- Check rate limits (30 questions/min)
+
+### Scrolling issues
+- All content areas should scroll; check that modals display full content
+- Refresh browser if UI seems stuck
+
+### "Provider not working"
+- See `transcription-provider.js` for detailed setup per provider
+
+---
+
 ## What's New in v3
 
 ✅ **All 7 STT Providers** fully integrated (v2 had only Deepgram)  
@@ -442,298 +580,6 @@ cp devlisten.db devlisten-$(date +%Y%m%d).db.bak
 
 ---
 
-## License
-
-MIT
-
----
-
-## Support
-
-- **Documentation** → See detailed comments in each `.js` file
-- **Deepgram Docs** → https://developers.deepgram.com/docs/
-- **Google Cloud STT** → https://cloud.google.com/speech-to-text/v2/docs
-- **AWS Transcribe** → https://docs.aws.amazon.com/transcribe/latest/dg/
-- **Claude API** → https://docs.anthropic.com/
-
----
-
-## Author
-
-Built for real-time AI-powered teaching.
-
-Made with ⚡ for teachers and students who get it.
-
-### 📝 Study Tools
-- **Quiz**: Auto-generated from indexed materials
-- **Flashcards**: Flip-card study with navigation
-- **Summary**: Topic-based lesson summaries
-
-### 📊 Session Management
-- All Q&A stored in SQLite
-- Session stats: answered count, filtered count, avg response time
-- Export to Markdown or Notion
-- Tag-based filtering
-
-## Architecture
-
-```
-Browser (WebSocket)  →  Express Server  →  Claude API
-    ↓                         ↓                ↓
-Microphone Input        Session/Messages   RAG Context
-                         Web Search         Web Search
-```
-
-## Project Structure
-
-```
-devlisten-v3/
-├── server.js                    # Main server + WebSocket
-├── public/index.html            # Single-page app (2745 lines)
-│
-├── Database & Storage
-│   ├── db.js                    # SQLite sessions & messages
-│   └── devlisten.db             # Auto-created on first run
-│
-├── AI & Knowledge
-│   ├── rag.js                   # Document retrieval
-│   ├── classifier.js            # Topic detection
-│   ├── quiz.js                  # Quiz/flashcard generation
-│   ├── websearch.js             # Real-time web search
-│   └── ingest.js                # Document indexing
-│
-├── Audio & Transcription
-│   ├── transcription-provider.js # Deepgram integration
-│   └── vocab.js                 # Deepgram keywords
-│
-├── Content
-│   ├── teacher-docs/            # Course materials (tracked in git)
-│   └── ingested/                # Indexed docs cache
-│
-└── Scripts
-    ├── png-to-md.js             # Convert PNG slides to markdown
-    ├── bulk-ingest.js           # Batch index documents
-    └── export.js                # Export sessions
-```
-
-## Usage
-
-### Answering Questions in Class
-1. **Click the microphone** or **hold Space** to start recording
-2. Say your question naturally
-3. Release to send
-4. AsideMe listens to the teacher, understands context, and streams a response
-5. Read the response aloud in class
-
-### Uploading Course Materials
-1. Click **"⬆ Upload"** in the left sidebar
-2. Drag files or click to browse
-3. Supports: `.md`, `.pdf`, `.js`, `.py`, `.sql`, `.json`, `.txt`, `.png`, `.jpg`
-4. Claude Vision automatically processes images
-5. Materials indexed and searchable
-
-### Study Tools
-1. Click **"📝 Quiz me"**, **"🃏 Flashcards"**, or **"📋 Summary"**
-2. Select a topic from indexed materials
-3. Study tools auto-generate from course content
-
-## Configuration
-
-Create `.env` file in root directory:
-
-```env
-# Required
-ANTHROPIC_API_KEY=sk-...
-
-# Optional - Enhanced speech recognition
-DEEPGRAM_API_KEY=dg_...
-
-# Optional - Export sessions to Notion
-NOTION_API_KEY=secret_...
-NOTION_DATABASE_ID=...
-
-# Server settings
-PORT=3001
-SESSION_MAX_MESSAGES=60
-```
-
-## API Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| POST | `/api/session` | Create new session |
-| GET | `/api/docs` | Get indexed docs count & topics |
-| POST | `/api/message` | Add question to session |
-| GET | `/api/messages/:id` | Get all Q&A pairs |
-| POST | `/api/ingest` | Upload & index files |
-| POST | `/api/quiz` | Generate quiz |
-| POST | `/api/export/markdown` | Export session |
-| WS | `/transcribe` | Real-time speech-to-text |
-
-## WebSocket Events
-
-Real-time transcription via `/transcribe`:
-
-```json
-{
-  "type": "interim",
-  "transcript": "What is a closure in JavaScr...",
-  "speaker": 0
-}
-```
-
-```json
-{
-  "type": "final",
-  "transcript": "What is a closure in JavaScript?",
-  "speaker": 0
-}
-```
-
-```json
-{
-  "type": "utterance_end"
-}
-```
-
-## System Prompt
-
-AsideMe generates responses using this instruction:
-
-> You are a real-time coaching assistant listening to a live software engineering class.
-> Your ONLY job is to generate a smart, natural response that the STUDENT can say out loud.
-> VOICE & TONE: First person, natural spoken cadence, 1–3 sentences max, mirror teacher's vocabulary.
-> KNOWLEDGE PRIORITY: 1) Course material, 2) Web search results, 3) Your own knowledge.
-
-[See HANDOFF.md for full prompt details]
-
-## Development
-
-### Start Dev Server
-```bash
-npm run dev
-# Auto-restarts on file changes (nodemon)
-```
-
-### Index Documents
-```bash
-npm run ingest:slides       # Index slide folder
-npm run stats               # Show doc statistics
-npm run list                # List all indexed docs
-npm run convert:all         # Convert PNG slides to markdown first
-```
-
-### Build Commands
-```bash
-npm start                   # Production start (no auto-restart)
-npm run stats               # Show indexed docs & topics
-npm run list                # List all indexed documents
-npm run convert:week1       # Convert specific slides
-```
-
-## Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| **SPACE** (hold) | Push-to-ask mode |
-| **D** | Dismiss last answer |
-| **?** | Show keyboard shortcuts |
-| **ESC** | Close modal |
-
-## Transcription Options
-
-### Built-in (Default)
-- Uses browser Web Speech API
-- No API keys needed
-- Captures room audio only
-- Good for testing
-
-### Deepgram (Recommended)
-- Set `DEEPGRAM_API_KEY` in `.env`
-- Server auto-detects and uses Deepgram WebSocket
-- Much higher accuracy
-- Falls back to Web Speech if configured incorrectly
-
-### BlackHole (MacOS only)
-- Captures audio directly from Zoom
-- Requires installation: See app's BlackHole setup guide
-- Best for recording calls without ambient noise
-
-## Troubleshooting
-
-### Server won't start
-```bash
-# Check if port 3001 is in use
-lsof -i :3001
-
-# Kill existing process
-pkill -f "node server.js"
-```
-
-### API key errors
-```bash
-# Verify ANTHROPIC_API_KEY is set
-echo $ANTHROPIC_API_KEY
-
-# Check .env file exists in root
-cat .env
-```
-
-### Documents not indexing
-```bash
-# Check ingestion status
-npm run stats
-
-# Verify teacher-docs folder exists
-ls -la teacher-docs/
-
-# Re-ingest all
-npm run ingest:slides
-```
-
-### Scrolling issues
-- All content areas now properly scroll
-- Check that modals display full content
-- Refresh browser if UI seems stuck
-
-## Performance
-
-- **Response Time**: ~1–3 seconds (Claude API)
-- **DB Size**: ~1MB per 100 sessions
-- **Memory**: ~80MB baseline (Node + SQLite)
-- **Connections**: 1 WebSocket per client
-
-## Rate Limiting
-
-Endpoints have built-in rate limits:
-- **Chat**: 30 requests/min
-- **Ingest**: 20 uploads/min
-- **Quiz**: 15 requests/min
-- **Localhost exemption**: 127.0.0.1, ::1 bypass limits
-
-## Export Options
-
-### Markdown
-- Exports full session transcript
-- Includes Q&A pairs with timestamps
-- Preserves formatting
-- Suitable for archives
-
-### Notion
-- Exports to configured Notion database
-- Creates database entries per session
-- Includes session metadata (stats, tags)
-- Requires API credentials
-
-## Database
-
-**SQLite** (better-sqlite3) stores:
-- Sessions (ID, title, created, modified, tags)
-- Messages (question, answer, latency, classification)
-- Transcripts (speaker, timestamp, text)
-
-Auto-created at: `./devlisten.db`
-
 ## Next Developer?
 
 See **[HANDOFF.md](./HANDOFF.md)** for:
@@ -744,17 +590,22 @@ See **[HANDOFF.md](./HANDOFF.md)** for:
 - Deployment checklist
 - Troubleshooting guide
 
+---
+
 ## License
 
-Proprietary — AsideMe
+Proprietary — AsideMe. All rights reserved.
 
-## Contact
+## Support
 
-For questions about this codebase, see HANDOFF.md for detailed implementation notes and development context.
+- **Documentation** → See detailed comments in each `.js` file, plus HANDOFF.md
+- **Deepgram Docs** → https://developers.deepgram.com/docs/
+- **Google Cloud STT** → https://cloud.google.com/speech-to-text/v2/docs
+- **AWS Transcribe** → https://docs.aws.amazon.com/transcribe/latest/dg/
+- **Claude API** → https://docs.anthropic.com/
 
 ---
 
 **Status**: Production-ready ✅  
 **Last Updated**: March 24, 2026  
 **Version**: 3.1.0
-# devlistenv3
