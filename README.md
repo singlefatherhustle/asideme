@@ -594,7 +594,7 @@ See **[HANDOFF.md](./HANDOFF.md)** for:
 
 ## License
 
-Proprietary — AsideMe. All rights reserved.
+Proprietary. © 2026 Beat Dump Holdings Inc. All rights reserved.
 
 ## Support
 
